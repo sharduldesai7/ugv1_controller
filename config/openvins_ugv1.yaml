@@ -1,0 +1,44 @@
+%YAML:1.0
+
+verbosity: "DEBUG"
+
+use_fej: true
+integration: "rk4"
+use_stereo: false
+max_cameras: 1
+
+calib_cam_extrinsics: false
+calib_cam_intrinsics: false
+calib_cam_timeoffset: false
+calib_imu_intrinsics: false
+calib_imu_g_sensitivity: false
+
+max_clones: 11
+max_slam: 50
+max_slam_in_update: 25
+max_msckf_in_update: 40
+num_aruco: 0
+
+dt_slam_delay: 3.0
+init_window_time: 1.0
+init_imu_thresh: 0.5
+init_max_features: 25
+init_max_disparity: 1.0
+
+gravity_mag: 9.81
+
+feat_rep_msckf: "GLOBAL_3D"
+feat_rep_slam: "GLOBAL_3D"
+feat_rep_aruco: "GLOBAL_3D"
+
+up_msckf_sigma_px: 1.0
+up_msckf_chi2_multipler: 1.0
+up_slam_sigma_px: 1.0
+up_slam_chi2_multipler: 1.0
+up_aruco_sigma_px: 1.0
+up_aruco_chi2_multipler: 1.0
+
+downsample_cameras: false
+
+relative_config_imu: "imu_ugv1.yaml"
+relative_config_imucam0: "cam0_ugv1.yaml"
