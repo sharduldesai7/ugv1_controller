@@ -175,7 +175,7 @@ class MPU9250Driver:
         """
         # WHO_AM_I sanity check — MPU9250 = 0x71, some clones return 0x73
         who = self._read_byte(REG_WHO_AM_I)
-        if who not in (0x71, 0x73, 0x70):
+        if who not in (0x71, 0x73, 0x70, 0x91):
             raise RuntimeError(
                 f'MPU9250 not found at 0x{self.address:02X} — '
                 f'WHO_AM_I returned 0x{who:02X} (expected 0x71)'
