@@ -16,3 +16,6 @@ __pycache__/
 # OS
 .DS_Store
 setup.py.bkp
+
+# Token
+.git_token
