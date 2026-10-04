@@ -166,6 +166,18 @@ class ViewerNode(Node):
             )
             return jsonify({'mode': new_mode})
 
+
+        @app.route('/focus/<float:position>')
+        def set_focus(position):
+            if not (0.0 <= position <= 10.0):
+                return jsonify({'error': 'lens_position must be between 0.0 and 10.0'}), 400
+            import subprocess
+            subprocess.Popen(
+                ['ros2', 'param', 'set', '/capture_node', 'lens_position', str(position)],
+                stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL
+            )
+            return jsonify({'lens_position': position})
+
         @app.route('/status')
         def status():
             now = time.time()
@@ -257,6 +269,12 @@ _HTML = '''<!DOCTYPE html>
         flex-wrap:wrap;justify-content:center;letter-spacing:.05em}
   .meta span{color:var(--text)}
 
+
+  .focus-ctrl{display:flex;flex-direction:column;align-items:center;gap:6px;width:100%;max-width:400px}
+  .focus-ctrl label{font-size:10px;letter-spacing:.12em;color:var(--muted);text-transform:uppercase}
+  .focus-ctrl label span{color:var(--accent)}
+  .focus-ctrl input[type=range]{width:100%;accent-color:var(--accent)}
+
   footer{border-top:1px solid var(--border);padding:12px 24px;font-size:10px;
          color:var(--muted);letter-spacing:.07em;display:flex;gap:20px;flex-wrap:wrap}
   footer a{color:var(--accent);text-decoration:none}
@@ -305,6 +323,14 @@ _HTML = '''<!DOCTYPE html>
     <button onclick="setMode('overlay')" id="btn-overlay">Overlay</button>
   </div>
 
+
+  <!-- Focus control -->
+  <div class="focus-ctrl">
+    <label for="focus-slider">LENS FOCUS&nbsp;<span id="focus-val">0.0</span></label>
+    <input type="range" id="focus-slider" min="0" max="10" step="0.1" value="0"
+           oninput="setFocus(this.value)">
+  </div>
+
   <div class="meta">
     capture: <span>/video_raw</span> &nbsp;·&nbsp;
     processed: <span>/video_processed</span> &nbsp;·&nbsp;
@@ -341,6 +367,14 @@ _HTML = '''<!DOCTYPE html>
         }, 300);
       });
   }
+
+  function setFocus(val) {
+    document.getElementById('focus-val').textContent = parseFloat(val).toFixed(1);
+    fetch('/focus/' + val)
+      .then(r => r.json())
+      .catch(() => {});
+  }
+
 </script>
 </body>
 </html>'''

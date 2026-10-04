@@ -14,8 +14,8 @@ Parameters:
   height      (int)   480
   fps         (int)   30
   target_fps  (int)   15   — publish rate (decoupled from capture rate)
-  vflip       (bool)  True
-  hflip       (bool)  True
+  vflip       (bool)  False
+  hflip       (bool)  False
   publish_raw (bool)  False — if True, also publish raw Image for OpenVINS
 """
 
@@ -53,9 +53,10 @@ class CaptureNode(Node):
         self.declare_parameter('height',      480)
         self.declare_parameter('fps',         30)
         self.declare_parameter('target_fps',  15)
-        self.declare_parameter('vflip',       True)
-        self.declare_parameter('hflip',       True)
+        self.declare_parameter('vflip',       False)
+        self.declare_parameter('hflip',       False)
         self.declare_parameter('publish_raw', False)
+        self.declare_parameter('lens_position', 0.0)
 
         self.width       = self.get_parameter('width').value
         self.height      = self.get_parameter('height').value
@@ -64,6 +65,7 @@ class CaptureNode(Node):
         self.vflip       = self.get_parameter('vflip').value
         self.hflip       = self.get_parameter('hflip').value
         self.publish_raw = self.get_parameter('publish_raw').value
+        self.lens_position = self.get_parameter('lens_position').value
 
         # Compressed publisher (always on)
         self.pub_compressed = self.create_publisher(
@@ -108,6 +110,8 @@ class CaptureNode(Node):
             cmd.append('--vflip')
         if self.hflip:
             cmd.append('--hflip')
+        if self.lens_position is not None:
+            cmd.extend(['--lens-position', str(self.lens_position)])
         return cmd
 
     def _capture_loop(self):
