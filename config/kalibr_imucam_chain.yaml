@@ -1,10 +1,10 @@
 %YAML:1.0
 
 cam0:
-  T_imu_cam: #rotation from camera to IMU R_CtoI, position of camera in IMU p_CinI (inverse of Kalibr T_cam_imu)
-    - [-0.007655220, -0.137400280, -0.990486020, -0.062242728]
-    - [0.999967260, 0.001545780, -0.007942930, 0.005098631]
-    - [0.002622430, -0.990514400, 0.137383950, 0.014899894]
+  T_imu_cam: #rotation from camera to IMU R_CtoI, position of camera in IMU p_CinI (inverse of Kalibr T_cam_imu; mean of bag4 full, bag5 0-50, bag5 70-100)
+    - [-0.007114201, -0.136830783, -0.990568890, -0.066500892]
+    - [0.999973611, 0.000484450, -0.007248664, 0.006269071]
+    - [0.001471721, -0.990594318, 0.136823726, 0.014749182]
     - [0.000000000, 0.000000000, 0.000000000, 1.000000000]
   cam_overlaps: []
   camera_model: pinhole
@@ -13,4 +13,4 @@ cam0:
   intrinsics: [397.1484125643431, 396.0303303414046, 322.96530119400535, 268.7883124272284]
   resolution: [640, 480]
   rostopic: /video_raw_raw
-  timeshift_cam_imu: -0.198857
+  timeshift_cam_imu: -0.198553
