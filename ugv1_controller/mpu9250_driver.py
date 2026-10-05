@@ -209,6 +209,11 @@ class MPU9250Driver:
 
         # Compute sensitivity scalars
         self._gyro_scale  = self._compute_gyro_scale()
+        if who == 0x91:
+            # ICG-20660L: FS_SEL codes map one step below the MPU9250
+            # (0=125, 1=250, 2=500 dps), so sensitivity is 2x the MPU value.
+            # Measured: 355 deg reported for a true 180 deg turn.
+            self._gyro_scale *= 0.5
         self._accel_scale = self._compute_accel_scale()
 
         # Initialise AK8963 magnetometer
