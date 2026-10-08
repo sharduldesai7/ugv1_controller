@@ -1,0 +1,20 @@
+# Stable device names for the two USB-serial adapters on UGV1.
+#
+# Both adapters otherwise show up as /dev/ttyUSB0 or /dev/ttyUSB1 depending on
+# which one the kernel detects first, so the motor controller and the LiDAR
+# could swap names between boots.
+#
+# Install on the Pi:
+#   sudo cp scripts/99-ugv1-usb.rules /etc/udev/rules.d/
+#   sudo udevadm control --reload-rules && sudo udevadm trigger
+#
+# Confirm the IDs match your adapters first (they are the common values):
+#   lsusb          -> look for "10c4:ea60" (CP210x, RPLidar) and "0403:6001" (FT232)
+#
+# If you ever use two adapters of the same type, match on ATTRS{serial} too.
+
+# RPLidar A1M8 USB adapter (Silicon Labs CP210x)
+SUBSYSTEM=="tty", ATTRS{idVendor}=="10c4", ATTRS{idProduct}=="ea60", SYMLINK+="rplidar", MODE="0666"
+
+# Arduino Nano motor controller via FT232RL
+SUBSYSTEM=="tty", ATTRS{idVendor}=="0403", ATTRS{idProduct}=="6001", SYMLINK+="ugv_motor", MODE="0666"
