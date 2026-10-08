@@ -15,6 +15,22 @@ ROS2 Jazzy package for UGV1 — a payload-agnostic autonomous ground vehicle tar
 - `capture_node` — captures MJPEG from rpicam-vid, publishes `/video_raw` (CompressedImage). Run with `-p publish_raw:=true` to also publish `/video_raw_raw` (Image) for OpenVINS.
 - `imu_node` — raw MPU9250 driver, publishes `/imu/data_raw` at 100Hz
 - `motor_node` — subscribes to `/cmd_vel`, sends UART packets to Arduino
+- `process_node` — OpenCV processing of `/video_raw`, publishes `/video_processed`
+- `viewer_node` — web server on port 8080 (see below)
+
+## Web interface
+
+`viewer_node` serves two Flask blueprints from `ugv1_controller/web/` (HTML, CSS and JS are plain files under `web/static/`):
+
+| Path | Description |
+| --- | --- |
+| `/` | Landing page with project overview and hardware/software architecture diagrams |
+| `/processed-feed` | Side-by-side raw and processed camera viewer |
+| `/processed-feed/feed/raw`, `/processed-feed/feed/proc` | MJPEG streams |
+| `/processed-feed/mode/<mode>` | Set processing mode: raw, gray, edges, overlay |
+| `/status` | JSON health check |
+
+The processed feed needs `process_node` running; `start_ugv1.sh` starts `viewer_node` but not `process_node`.
 
 ## Running the stack
 

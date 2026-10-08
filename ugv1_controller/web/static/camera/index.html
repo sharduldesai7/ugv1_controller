@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Rover Vision</title>
+<link rel="stylesheet" href="/processed-feed/static/style.css">
+</head>
+<body>
+
+<header>
+  <div class="dot"></div>
+  <h1>Rover Vision Pipeline</h1>
+  <div class="badge">LIVE</div>
+</header>
+
+<main>
+
+  <div class="feeds">
+    <!-- Raw feed -->
+    <div class="feed-card">
+      <div class="feed-label">Topic: <span>/video_raw</span></div>
+      <div class="feed-wrap">
+        <div class="corner tl"></div><div class="corner tr"></div>
+        <div class="corner bl"></div><div class="corner br"></div>
+        <div class="overlay-tag">RAW · IMX477</div>
+        <img src="/processed-feed/feed/raw" id="img-raw" alt="Raw feed">
+      </div>
+    </div>
+
+    <!-- Processed feed -->
+    <div class="feed-card">
+      <div class="feed-label">Topic: <span>/video_processed</span></div>
+      <div class="feed-wrap">
+        <div class="corner tl"></div><div class="corner tr"></div>
+        <div class="corner bl"></div><div class="corner br"></div>
+        <div class="overlay-tag">PROCESSED</div>
+        <div class="mode-tag" id="mode-tag">EDGES</div>
+        <img src="/processed-feed/feed/proc" id="img-proc" alt="Processed feed">
+      </div>
+    </div>
+  </div>
+
+  <!-- Mode controls -->
+  <div class="controls">
+    <button onclick="setMode('raw')"     id="btn-raw">Colour</button>
+    <button onclick="setMode('gray')"    id="btn-gray">Greyscale</button>
+    <button onclick="setMode('edges')"   id="btn-edges" class="active">Edges</button>
+    <button onclick="setMode('overlay')" id="btn-overlay">Overlay</button>
+  </div>
+
+
+  <div class="meta">
+    capture: <span>/video_raw</span> &nbsp;·&nbsp;
+    processed: <span>/video_processed</span> &nbsp;·&nbsp;
+    raw stream: <span><a href="/processed-feed/feed/raw">/processed-feed/feed/raw</a></span> &nbsp;·&nbsp;
+    proc stream: <span><a href="/processed-feed/feed/proc">/processed-feed/feed/proc</a></span>
+  </div>
+
+</main>
+
+<footer>
+  <span>3-NODE ROS2 PIPELINE</span>
+  <a href="/">HOME</a>
+  <a href="/processed-feed/feed/raw">RAW STREAM</a>
+  <a href="/processed-feed/feed/proc">PROCESSED STREAM</a>
+  <a href="/status">STATUS</a>
+</footer>
+
+<script src="/processed-feed/static/app.js"></script>
+</body>
+</html>

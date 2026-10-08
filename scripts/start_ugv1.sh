@@ -79,6 +79,13 @@ tmux new-session -d -s ugv1_motor \
 echo "Motor node started."
 sleep 1
 
+# Start the web server (landing page at / and camera viewer at /processed-feed)
+tmux new-session -d -s ugv1_viewer \
+  "${DISCOVERY_ENV} source ~/ros2_ws/install/setup.bash; ros2 run ugv1_controller viewer_node"
+
+echo "Viewer node started — http://<pi-ip>:8080"
+sleep 1
+
 # Optionally start OpenVINS
 if [ "$WITH_OPENVINS" = true ]; then
   echo "Starting OpenVINS... Hold robot still for initialization."
@@ -93,6 +100,7 @@ echo "UGV1 stack is running. Attach to sessions with:"
 echo "  tmux attach -t ugv1_imu"
 echo "  tmux attach -t ugv1_camera"
 echo "  tmux attach -t ugv1_motor"
+echo "  tmux attach -t ugv1_viewer"
 [ "$WITH_OPENVINS" = true ] && echo "  tmux attach -t ugv1_openvins"
 echo ""
 echo "Stop all with: tmux kill-server"
