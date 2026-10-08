@@ -3,18 +3,19 @@
 Node 3 — Web Stream Viewer
 ============================
 Subscribes to both /video_raw and /video_processed and serves them
-as MJPEG streams on a local web page.
+as MJPEG streams on a local web page, plus a project landing page.
 
 Subscribes:
   /video_raw        (sensor_msgs/CompressedImage)
   /video_processed  (sensor_msgs/CompressedImage)
 
 Endpoints:
-  http://<pi-ip>:8080/           — side-by-side viewer
-  http://<pi-ip>:8080/feed/raw   — raw MJPEG stream
-  http://<pi-ip>:8080/feed/proc  — processed MJPEG stream
-  http://<pi-ip>:8080/mode/<m>   — change processing mode (proxied to process_node param)
-  http://<pi-ip>:8080/status     — JSON health check
+  http://<pi-ip>:8080/                           — project landing page (architecture diagrams)
+  http://<pi-ip>:8080/processed-feed             — side-by-side viewer
+  http://<pi-ip>:8080/processed-feed/feed/raw    — raw MJPEG stream
+  http://<pi-ip>:8080/processed-feed/feed/proc   — processed MJPEG stream
+  http://<pi-ip>:8080/processed-feed/mode/<m>    — change processing mode (proxied to process_node param)
+  http://<pi-ip>:8080/status                     — JSON health check
 
 Parameters:
   port  (int)  8080
@@ -31,6 +32,8 @@ from sensor_msgs.msg import CompressedImage
 
 from flask import Flask, Response, jsonify
 import logging
+
+from ugv1_controller.landing_page import LANDING_HTML
 
 # Silence Flask request logs — keep terminal clean for ROS2 logs
 logging.getLogger('werkzeug').setLevel(logging.ERROR)
@@ -131,21 +134,21 @@ class ViewerNode(Node):
         app  = Flask(__name__)
         node = self   # closure reference
 
-        @app.route('/feed/raw')
+        @app.route('/processed-feed/feed/raw')
         def feed_raw():
             return Response(
                 node._gen_raw(),
                 mimetype='multipart/x-mixed-replace; boundary=frame'
             )
 
-        @app.route('/feed/proc')
+        @app.route('/processed-feed/feed/proc')
         def feed_proc():
             return Response(
                 node._gen_proc(),
                 mimetype='multipart/x-mixed-replace; boundary=frame'
             )
 
-        @app.route('/mode/<new_mode>')
+        @app.route('/processed-feed/mode/<new_mode>')
         def set_mode(new_mode):
             valid = ('raw', 'gray', 'edges', 'overlay')
             if new_mode not in valid:
@@ -167,17 +170,6 @@ class ViewerNode(Node):
             return jsonify({'mode': new_mode})
 
 
-        @app.route('/focus/<float:position>')
-        def set_focus(position):
-            if not (0.0 <= position <= 10.0):
-                return jsonify({'error': 'lens_position must be between 0.0 and 10.0'}), 400
-            import subprocess
-            subprocess.Popen(
-                ['ros2', 'param', 'set', '/capture_node', 'lens_position', str(position)],
-                stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL
-            )
-            return jsonify({'lens_position': position})
-
         @app.route('/status')
         def status():
             now = time.time()
@@ -192,7 +184,11 @@ class ViewerNode(Node):
             })
 
         @app.route('/')
-        def index():
+        def landing():
+            return LANDING_HTML
+
+        @app.route('/processed-feed', strict_slashes=False)
+        def processed_feed():
             return _HTML
 
         return app
@@ -270,10 +266,6 @@ _HTML = '''<!DOCTYPE html>
   .meta span{color:var(--text)}
 
 
-  .focus-ctrl{display:flex;flex-direction:column;align-items:center;gap:6px;width:100%;max-width:400px}
-  .focus-ctrl label{font-size:10px;letter-spacing:.12em;color:var(--muted);text-transform:uppercase}
-  .focus-ctrl label span{color:var(--accent)}
-  .focus-ctrl input[type=range]{width:100%;accent-color:var(--accent)}
 
   footer{border-top:1px solid var(--border);padding:12px 24px;font-size:10px;
          color:var(--muted);letter-spacing:.07em;display:flex;gap:20px;flex-wrap:wrap}
@@ -298,7 +290,7 @@ _HTML = '''<!DOCTYPE html>
         <div class="corner tl"></div><div class="corner tr"></div>
         <div class="corner bl"></div><div class="corner br"></div>
         <div class="overlay-tag">RAW · OV5647</div>
-        <img src="/feed/raw" id="img-raw" alt="Raw feed">
+        <img src="/processed-feed/feed/raw" id="img-raw" alt="Raw feed">
       </div>
     </div>
 
@@ -310,7 +302,7 @@ _HTML = '''<!DOCTYPE html>
         <div class="corner bl"></div><div class="corner br"></div>
         <div class="overlay-tag">PROCESSED</div>
         <div class="mode-tag" id="mode-tag">EDGES</div>
-        <img src="/feed/proc" id="img-proc" alt="Processed feed">
+        <img src="/processed-feed/feed/proc" id="img-proc" alt="Processed feed">
       </div>
     </div>
   </div>
@@ -324,26 +316,20 @@ _HTML = '''<!DOCTYPE html>
   </div>
 
 
-  <!-- Focus control -->
-  <div class="focus-ctrl">
-    <label for="focus-slider">LENS FOCUS&nbsp;<span id="focus-val">0.0</span></label>
-    <input type="range" id="focus-slider" min="0" max="10" step="0.1" value="0"
-           oninput="setFocus(this.value)">
-  </div>
-
   <div class="meta">
     capture: <span>/video_raw</span> &nbsp;·&nbsp;
     processed: <span>/video_processed</span> &nbsp;·&nbsp;
-    raw stream: <span><a href="/feed/raw">/feed/raw</a></span> &nbsp;·&nbsp;
-    proc stream: <span><a href="/feed/proc">/feed/proc</a></span>
+    raw stream: <span><a href="/processed-feed/feed/raw">/processed-feed/feed/raw</a></span> &nbsp;·&nbsp;
+    proc stream: <span><a href="/processed-feed/feed/proc">/processed-feed/feed/proc</a></span>
   </div>
 
 </main>
 
 <footer>
   <span>3-NODE ROS2 PIPELINE</span>
-  <a href="/feed/raw">RAW STREAM</a>
-  <a href="/feed/proc">PROCESSED STREAM</a>
+  <a href="/">HOME</a>
+  <a href="/processed-feed/feed/raw">RAW STREAM</a>
+  <a href="/processed-feed/feed/proc">PROCESSED STREAM</a>
   <a href="/status">STATUS</a>
 </footer>
 
@@ -352,7 +338,7 @@ _HTML = '''<!DOCTYPE html>
   const modeLabels = {raw:'COLOUR', gray:'GREYSCALE', edges:'EDGES', overlay:'OVERLAY'};
 
   function setMode(mode) {
-    fetch('/mode/' + mode)
+    fetch('/processed-feed/mode/' + mode)
       .then(r => r.json())
       .then(() => {
         currentMode = mode;
@@ -363,16 +349,9 @@ _HTML = '''<!DOCTYPE html>
         // Force reload of processed feed to clear stale frame
         setTimeout(() => {
           const img = document.getElementById('img-proc');
-          img.src = '/feed/proc?' + Date.now();
+          img.src = '/processed-feed/feed/proc?' + Date.now();
         }, 300);
       });
-  }
-
-  function setFocus(val) {
-    document.getElementById('focus-val').textContent = parseFloat(val).toFixed(1);
-    fetch('/focus/' + val)
-      .then(r => r.json())
-      .catch(() => {});
   }
 
 </script>
