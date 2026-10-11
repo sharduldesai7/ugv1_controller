@@ -56,6 +56,10 @@ def generate_launch_description():
         DeclareLaunchArgument('serial_baudrate', default_value='115200',
                               description='A1M8 uses 115200'),
         DeclareLaunchArgument('frame_id',        default_value='laser'),
+        # The ROS 2 build of rplidar_ros names its executable
+        # rplidar_composition. Check with: ls /opt/ros/jazzy/lib/rplidar_ros
+        DeclareLaunchArgument('driver_executable',
+                              default_value='rplidar_composition'),
 
         # ── LiDAR pose in base_link (metres / radians) ─────────────────────────
         DeclareLaunchArgument('lidar_x',   default_value='-0.0835'),
@@ -65,7 +69,7 @@ def generate_launch_description():
 
         Node(
             package='rplidar_ros',
-            executable='rplidar_node',
+            executable=LaunchConfiguration('driver_executable'),
             name='rplidar_node',
             output='screen',
             parameters=[{
