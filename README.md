@@ -14,9 +14,10 @@ ROS2 Jazzy package for UGV1 — a payload-agnostic autonomous ground vehicle tar
 
 - `capture_node` — captures MJPEG from rpicam-vid, publishes `/video_raw` (CompressedImage). Run with `-p publish_raw:=true` to also publish `/video_raw_raw` (Image) for OpenVINS.
 - `imu_node` — raw MPU9250 driver, publishes `/imu/data_raw` at 100Hz
-- `motor_node` — subscribes to `/cmd_vel`, sends UART packets to Arduino
+- `motor_control_node` — subscribes to `/cmd_vel`, sends UART packets to Arduino
 - `process_node` — OpenCV processing of `/video_raw`, publishes `/video_processed`
 - `viewer_node` — web server on port 8080 (see below)
+- `odom_tf_node` — turns OpenVINS `/odomimu` (frames `global` -> `imu`) into the `odom -> base_link` transform and an `/odom` pose topic. base_link is the IMU frame turned 180 deg about z. Started with `--with-openvins` in the `ugv1_odom_tf` session.
 - `lidar.launch.py` — RPLidar A1M8 driver (`/scan`) plus the static transforms `base_link -> imu_link` and `base_link -> laser`. Started by `start_ugv1.sh` in the `ugv1_lidar` tmux session.
 
 Serial devices use stable names from `scripts/99-ugv1-usb.rules` (`/dev/rplidar`, `/dev/ugv_motor`); install the rules on the Pi before running the stack.

@@ -74,7 +74,7 @@ sleep 2
 
 # Start motor node
 tmux new-session -d -s ugv1_motor \
-  "${DISCOVERY_ENV} source ~/ros2_ws/install/setup.bash; ros2 run ugv1_controller motor_node"
+  "${DISCOVERY_ENV} source ~/ros2_ws/install/setup.bash; ros2 run ugv1_controller motor_control_node"
 
 echo "Motor node started."
 sleep 1
@@ -100,6 +100,11 @@ if [ "$WITH_OPENVINS" = true ]; then
     "${DISCOVERY_ENV} source ~/ros2_ws/install/setup.bash; ros2 run ov_msckf run_subscribe_msckf --ros-args \
       -p config_path:=/home/ubuntu/ros2_ws/src/ugv1_controller/config/estimator_config.yaml"
   echo "OpenVINS started."
+
+  # odom -> base_link from the OpenVINS odometry
+  tmux new-session -d -s ugv1_odom_tf \
+    "${DISCOVERY_ENV} source ~/ros2_ws/install/setup.bash; ros2 run ugv1_controller odom_tf_node"
+  echo "odom_tf_node started."
 fi
 
 echo ""
@@ -110,5 +115,6 @@ echo "  tmux attach -t ugv1_motor"
 echo "  tmux attach -t ugv1_viewer"
 echo "  tmux attach -t ugv1_lidar"
 [ "$WITH_OPENVINS" = true ] && echo "  tmux attach -t ugv1_openvins"
+[ "$WITH_OPENVINS" = true ] && echo "  tmux attach -t ugv1_odom_tf"
 echo ""
 echo "Stop all with: tmux kill-server"

@@ -30,7 +30,8 @@ setup(
             "capture_node = ugv1_controller.capture_node:main",
             "process_node = ugv1_controller.process_node:main",
             "viewer_node = ugv1_controller.viewer_node:main",
-            "imu_node = ugv1_controller.imu_node:main"
+            "imu_node = ugv1_controller.imu_node:main",
+            "odom_tf_node = ugv1_controller.odom_tf_node:main"
         ],
     },
 )
