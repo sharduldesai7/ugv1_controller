@@ -78,6 +78,7 @@ def main():
 
     sent = 0
     replied = 0
+    mid_line = False   # True while a row of dots is being printed
     start = time.time()
     print('Checking %s at %d baud for %.0f s (. = no reply)'
           % (args.port, args.baud, args.duration))
@@ -92,16 +93,20 @@ def main():
                 ok, text = decode_reply(reply)
                 if ok:
                     replied += 1
-                print('\n[%5.1fs] %s' % (time.time() - start, text), flush=True)
+                print('%s[%5.1fs] %s' % ('\n' if mid_line else '',
+                                         time.time() - start, text), flush=True)
+                mid_line = False
             else:
                 print('.', end='', flush=True)
+                mid_line = True
             time.sleep(args.interval)
     except KeyboardInterrupt:
         pass
     finally:
         port.close()
 
-    print('\n%d of %d requests answered' % (replied, sent))
+    print('%s%d of %d requests answered'
+          % ('\n' if mid_line else '', replied, sent))
     if replied == 0:
         print('No reply: check the cable between the LiDAR and its adapter '
               'board, the port name and that no other program is using it.')
