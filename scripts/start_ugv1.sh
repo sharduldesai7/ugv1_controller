@@ -86,6 +86,13 @@ tmux new-session -d -s ugv1_viewer \
 echo "Viewer node started — http://<pi-ip>:8080"
 sleep 1
 
+# Start the LiDAR driver and the static transforms (base_link -> imu_link, laser)
+tmux new-session -d -s ugv1_lidar \
+  "${DISCOVERY_ENV} source ~/ros2_ws/install/setup.bash; ros2 launch ugv1_controller lidar.launch.py"
+
+echo "LiDAR started — publishing /scan"
+sleep 1
+
 # Optionally start OpenVINS
 if [ "$WITH_OPENVINS" = true ]; then
   echo "Starting OpenVINS... Hold robot still for initialization."
@@ -101,6 +108,7 @@ echo "  tmux attach -t ugv1_imu"
 echo "  tmux attach -t ugv1_camera"
 echo "  tmux attach -t ugv1_motor"
 echo "  tmux attach -t ugv1_viewer"
+echo "  tmux attach -t ugv1_lidar"
 [ "$WITH_OPENVINS" = true ] && echo "  tmux attach -t ugv1_openvins"
 echo ""
 echo "Stop all with: tmux kill-server"

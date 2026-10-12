@@ -7,7 +7,7 @@ import serial
 import struct
 
 # ── Configuration ─────────────────────────────────────────────────────────────
-PORT          = "/dev/ttyUSB0"   # Change to your port
+PORT          = "/dev/ugv_motor"   # Stable name from scripts/99-ugv1-usb.rules
 BAUD_RATE     = 9600
 START_BYTE    = 0xAA
 BASE_SPEED    = 50               # Max speed scaling (0–255)

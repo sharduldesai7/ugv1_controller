@@ -17,6 +17,9 @@ ROS2 Jazzy package for UGV1 — a payload-agnostic autonomous ground vehicle tar
 - `motor_node` — subscribes to `/cmd_vel`, sends UART packets to Arduino
 - `process_node` — OpenCV processing of `/video_raw`, publishes `/video_processed`
 - `viewer_node` — web server on port 8080 (see below)
+- `lidar.launch.py` — RPLidar A1M8 driver (`/scan`) plus the static transforms `base_link -> imu_link` and `base_link -> laser`. Started by `start_ugv1.sh` in the `ugv1_lidar` tmux session.
+
+Serial devices use stable names from `scripts/99-ugv1-usb.rules` (`/dev/rplidar`, `/dev/ugv_motor`); install the rules on the Pi before running the stack.
 
 ## LiDAR health check
 
