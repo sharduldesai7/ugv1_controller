@@ -11,8 +11,9 @@ IMU and turned 180 degrees about z (see launch/lidar.launch.py), so:
     orientation(base_link in odom) = orientation(imu in global) * Rz(pi)
 
 OpenVINS' "global" frame is used directly as "odom". Its origin is the IMU pose
-at initialisation, so the robot starts at (0, 0) facing odom -x. That is fine
-for mapping; only the heading offset is arbitrary.
+at initialisation, so the robot starts near (0, 0). The starting heading is
+chosen by OpenVINS; on the robot it was observed at about 0 deg (base_link x
+along odom x) in two runs, but it is not guaranteed, so do not rely on it.
 
 Also republishes the pose on /odom (nav_msgs/Odometry, odom -> base_link) for
 nodes that want an Odometry message. The twist is left unset (covariance -1):
