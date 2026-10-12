@@ -20,8 +20,10 @@ Frames (ROS convention, REP-103: x forward, y left, z up):
 
 The LiDAR offsets were derived from measurements; replace them with values
 measured on the finished robot via the lidar_x / lidar_y / lidar_z arguments.
-lidar_yaw rotates the laser frame about z: set it so that the scan's forward
-direction in RViz matches the robot's real front.
+lidar_yaw rotates the laser frame about z. The default of pi (3.14159) was
+measured on the robot: the LiDAR's zero direction points to the back of the
+robot. Check it with scripts/lidar_nearest.py, which reports the nearest object
+in the robot frame (0 deg = straight ahead, +90 deg = left).
 """
 
 import math
@@ -65,7 +67,10 @@ def generate_launch_description():
         DeclareLaunchArgument('lidar_x',   default_value='-0.0835'),
         DeclareLaunchArgument('lidar_y',   default_value='-0.0063'),
         DeclareLaunchArgument('lidar_z',   default_value='0.0947'),
-        DeclareLaunchArgument('lidar_yaw', default_value='0.0'),
+        # Measured on the bench: the LiDAR's zero direction points to the BACK
+        # of the robot (a box held in front of the robot reads about 171 deg in
+        # the laser frame), so the laser frame is turned about 180 deg.
+        DeclareLaunchArgument('lidar_yaw', default_value='3.14159'),
 
         Node(
             package='rplidar_ros',
