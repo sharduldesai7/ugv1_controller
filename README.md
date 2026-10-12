@@ -18,6 +18,17 @@ ROS2 Jazzy package for UGV1 — a payload-agnostic autonomous ground vehicle tar
 - `process_node` — OpenCV processing of `/video_raw`, publishes `/video_processed`
 - `viewer_node` — web server on port 8080 (see below)
 
+## LiDAR health check
+
+`scripts/lidar_health_check.py` talks to the RPLidar directly over serial (no ROS) and reports whether it answers. Run it before launching the driver, and use it to hunt for a loose connector by flexing the cables while it runs:
+
+```bash
+python3 scripts/lidar_health_check.py                        # 10 s check on /dev/rplidar
+python3 scripts/lidar_health_check.py --duration 40 --motor  # longer, with the motor spinning
+```
+
+Exit code 0 means every request was answered, 1 means intermittent replies, 2 means no reply, 3 means the port could not be opened. Stop the driver first, since only one program can use the port.
+
 ## Web interface
 
 `viewer_node` serves two Flask blueprints from `ugv1_controller/web/` (HTML, CSS and JS are plain files under `web/static/`):
