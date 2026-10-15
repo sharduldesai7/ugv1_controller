@@ -15,7 +15,7 @@ setup(
         (os.path.join('share', package_name, 'launch'), glob('launch/*.launch.py')),
     ],
     package_data={
-        'ugv1_controller.web': ['static/landing/*', 'static/camera/*'],
+        'ugv1_controller.web': ['static/landing/*', 'static/drive/*'],
     },
     install_requires=['setuptools'],
     zip_safe=True,
@@ -29,7 +29,7 @@ setup(
             "motor_control_node = ugv1_controller.motor_control_node:main",
             "capture_node = ugv1_controller.capture_node:main",
             "process_node = ugv1_controller.process_node:main",
-            "viewer_node = ugv1_controller.viewer_node:main",
+            "web_node = ugv1_controller.web_node:main",
             "imu_node = ugv1_controller.imu_node:main",
             "odom_tf_node = ugv1_controller.odom_tf_node:main"
         ],

@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
 
+import time
+
 import rclpy
 from rclpy.node import Node
 from geometry_msgs.msg import Twist
@@ -65,9 +67,36 @@ class MotorControlNode(Node):
             10
         )
         self.get_logger().info("Subscribed to /cmd_vel — ready to receive commands")
+
+        # ── Watchdog ──────────────────────────────────────────────
+        # If /cmd_vel goes quiet while the motors are running (browser closed,
+        # Wi-Fi dropped, publisher crashed), stop them. Set cmd_timeout to 0
+        # to disable. Anything that drives the rover must publish faster than
+        # this (the web page sends about 20 per second while driving).
+        self.declare_parameter("cmd_timeout", 0.5)
+        self.cmd_timeout = float(self.get_parameter("cmd_timeout").value)
+        self._last_cmd_time = None      # None = nothing received since the last stop
+        self._moving = False            # True while the last command was non-zero
+        self._last_logged = None
+        if self.cmd_timeout > 0:
+            self.create_timer(0.05, self.watchdog)
         self.get_logger().info("Run: ros2 run teleop_twist_keyboard teleop_twist_keyboard")
 
+    def watchdog(self):
+        if self._last_cmd_time is None:
+            return
+        if time.monotonic() - self._last_cmd_time > self.cmd_timeout:
+            self._last_cmd_time = None
+            if not self._moving:
+                return                  # already told to stop; nothing to do
+            self._moving = False
+            self._last_logged = None    # log the next command even if unchanged
+            self.get_logger().warn(
+                f"No /cmd_vel for {self.cmd_timeout:.1f} s — stopping all motors")
+            self.send_motor_data(0, 0, 0, 0, STOP, STOP, STOP, STOP)
+
     def cmd_vel_callback(self, msg):
+        self._last_cmd_time = time.monotonic()
         linear  = msg.linear.x    # +ve = forward, -ve = backward
         angular = msg.angular.z   # +ve = turn left, -ve = turn right
 
@@ -85,6 +114,7 @@ class MotorControlNode(Node):
 
         spd_left  = abs(left_speed)
         spd_right = abs(right_speed)
+        self._moving = bool(spd_left or spd_right)
 
         # ── Send to Arduino ───────────────────────────────────────
         # M1 = FL (wires reversed, so invert direction)
@@ -98,7 +128,11 @@ class MotorControlNode(Node):
             direction4=dir_left
         )
 
-        self.print_status(spd_left, spd_right, dir_left, dir_right, linear, angular)
+        # Log only when the command changes: a driver may publish 20 times a second
+        summary = (spd_left, spd_right, dir_left, dir_right)
+        if summary != self._last_logged:
+            self._last_logged = summary
+            self.print_status(spd_left, spd_right, dir_left, dir_right, linear, angular)
 
     def send_motor_data(self, speed1, speed2, speed3, speed4,
                         direction1, direction2, direction3, direction4):

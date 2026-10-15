@@ -79,11 +79,11 @@ tmux new-session -d -s ugv1_motor \
 echo "Motor node started."
 sleep 1
 
-# Start the web server (landing page at / and camera viewer at /processed-feed)
-tmux new-session -d -s ugv1_viewer \
-  "${DISCOVERY_ENV} source ~/ros2_ws/install/setup.bash; ros2 run ugv1_controller viewer_node"
+# Start the web server (landing page at /, drive page at /drive)
+tmux new-session -d -s ugv1_web \
+  "${DISCOVERY_ENV} source ~/ros2_ws/install/setup.bash; ros2 run ugv1_controller web_node"
 
-echo "Viewer node started — http://<pi-ip>:8080"
+echo "Web node started — http://<pi-ip>:8080"
 sleep 1
 
 # Start the LiDAR driver and the static transforms (base_link -> imu_link, laser)
@@ -112,7 +112,7 @@ echo "UGV1 stack is running. Attach to sessions with:"
 echo "  tmux attach -t ugv1_imu"
 echo "  tmux attach -t ugv1_camera"
 echo "  tmux attach -t ugv1_motor"
-echo "  tmux attach -t ugv1_viewer"
+echo "  tmux attach -t ugv1_web"
 echo "  tmux attach -t ugv1_lidar"
 [ "$WITH_OPENVINS" = true ] && echo "  tmux attach -t ugv1_openvins"
 [ "$WITH_OPENVINS" = true ] && echo "  tmux attach -t ugv1_odom_tf"

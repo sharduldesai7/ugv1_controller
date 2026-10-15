@@ -9,7 +9,7 @@
 <body>
 
 <nav class="topbar">
-  <a href="/processed-feed">Live camera feed</a>
+  <a href="/drive">Drive</a>
   <a href="/status">Status (JSON)</a>
 </nav>
 
@@ -30,8 +30,9 @@
         <ul>
           <li><b>Done:</b> camera-IMU calibration (Kalibr)</li>
           <li><b>Done:</b> OpenVINS visual-inertial odometry running on the Pi</li>
-          <li><b>Next:</b> LiDAR integration</li>
-          <li><b>Next:</b> odometry into the TF tree for RTAB-Map and Nav2</li>
+          <li><b>Done:</b> RPLidar A1M8 publishing /scan, odometry in the TF tree</li>
+          <li><b>Done:</b> manual drive from the browser</li>
+          <li><b>Next:</b> RTAB-Map and Nav2</li>
         </ul>
       </div>
       <div class="card">
@@ -49,7 +50,7 @@
           <li><b>OS / middleware:</b> Ubuntu 24.04, ROS 2 Jazzy</li>
           <li><b>Nodes:</b> Python (rclpy), raw register-level IMU driver</li>
           <li><b>Localisation:</b> OpenVINS (MSCKF)</li>
-          <li><b>Planned:</b> RTAB-Map, Nav2, RPLidar driver</li>
+          <li><b>Planned:</b> RTAB-Map, Nav2</li>
         </ul>
       </div>
       <div class="card">
@@ -87,11 +88,10 @@
         <thead><tr><th>Path</th><th>Description</th></tr></thead>
         <tbody>
           <tr><td><a href="/">/</a></td><td>This page</td></tr>
-          <tr><td><a href="/processed-feed">/processed-feed</a></td><td>Side-by-side raw and processed camera viewer with controls</td></tr>
-          <tr><td><a href="/processed-feed/feed/raw">/processed-feed/feed/raw</a></td><td>Raw MJPEG stream</td></tr>
-          <tr><td><a href="/processed-feed/feed/proc">/processed-feed/feed/proc</a></td><td>Processed MJPEG stream</td></tr>
-          <tr><td>/processed-feed/mode/&lt;mode&gt;</td><td>Set the processing mode: raw, gray, edges or overlay</td></tr>
-          <tr><td><a href="/status">/status</a></td><td>JSON health check with the age of the latest frame on each topic</td></tr>
+          <tr><td><a href="/drive">/drive</a></td><td>First-person drive page: raw camera feed, drive keys or joystick, Drive Enable switch</td></tr>
+          <tr><td><a href="/drive/feed/raw">/drive/feed/raw</a></td><td>Raw MJPEG stream</td></tr>
+          <tr><td>/drive/api/...</td><td>Drive control API used by the page: state, enable, disable, cmd, speed</td></tr>
+          <tr><td><a href="/status">/status</a></td><td>JSON health check with the age of the latest camera frame and the drive state</td></tr>
         </tbody>
       </table>
     </div>

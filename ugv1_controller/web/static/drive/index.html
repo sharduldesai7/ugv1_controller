@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<title>UGV1 Drive</title>
+<link rel="icon" href="data:,">
+<link rel="stylesheet" href="/drive/static/style.css">
+</head>
+<body>
+
+<!-- Camera: raw feed, shown whole at 4:3 -->
+<div id="video">
+  <img id="feed" src="/drive/feed/raw" alt="Raw camera feed">
+  <div id="vignette"></div>
+  <div id="no-feed">WAITING FOR FEED</div>
+  <div class="bracket tl"></div><div class="bracket tr"></div>
+  <div class="bracket bl"></div><div class="bracket br"></div>
+  <svg id="reticle" width="120" height="120" viewBox="0 0 120 120" aria-hidden="true">
+    <circle cx="60" cy="60" r="26" fill="none" stroke="currentColor" stroke-width="1.5"/>
+    <g stroke="currentColor" stroke-width="1.5">
+      <line x1="60" y1="20" x2="60" y2="42"/><line x1="60" y1="78" x2="60" y2="100"/>
+      <line x1="20" y1="60" x2="42" y2="60"/><line x1="78" y1="60" x2="100" y2="60"/>
+    </g>
+    <circle cx="60" cy="60" r="2" fill="currentColor"/>
+  </svg>
+</div>
+
+<!-- Top -->
+<header id="top-left"><span class="brand">UGV1</span><a class="route" href="/">/DRIVE</a></header>
+<div id="status-wrap"><div id="status" class="pill"><span class="dot" id="status-dot"></span><span id="status-text">DISABLED</span></div></div>
+<div id="top-right">
+  <div class="pill small"><span class="dot" id="link-dot"></span><span id="link-text">CONNECTING</span></div>
+  <div class="note">STOPS ON LINK LOSS</div>
+</div>
+
+<!-- Left column: Drive Enable, drive keys (mouse) or STOP (touch), speed (touch) -->
+<aside id="left" class="panel">
+  <div class="row between">
+    <span class="title">DRIVE ENABLE</span>
+    <button id="enable" class="switch" type="button" role="switch" aria-checked="false" aria-label="Drive enable"><span class="knob"></span></button>
+  </div>
+
+  <div id="keypad" class="keys" aria-label="Drive keys">
+    <button type="button" class="key" data-key="u" data-x="1"  data-th="1"  aria-label="Forward and left, key U"><i>U</i><svg class="ic" style="--r:-45deg"  viewBox="0 0 24 24"><use href="#i-arrow"/></svg></button>
+    <button type="button" class="key" data-key="i" data-x="1"  data-th="0"  aria-label="Forward, key I"><i>I</i><svg class="ic" style="--r:0deg"    viewBox="0 0 24 24"><use href="#i-arrow"/></svg></button>
+    <button type="button" class="key" data-key="o" data-x="1"  data-th="-1" aria-label="Forward and right, key O"><i>O</i><svg class="ic" style="--r:45deg"   viewBox="0 0 24 24"><use href="#i-arrow"/></svg></button>
+    <button type="button" class="key" data-key="j" data-x="0"  data-th="1"  aria-label="Turn left on the spot, key J"><i>J</i><svg class="ic" viewBox="0 0 24 24"><use href="#i-ccw"/></svg></button>
+    <button type="button" class="key stop" data-key="k" data-x="0" data-th="0" aria-label="Stop, key K"><i>K</i><svg class="ic" viewBox="0 0 24 24"><use href="#i-stop"/></svg></button>
+    <button type="button" class="key" data-key="l" data-x="0"  data-th="-1" aria-label="Turn right on the spot, key L"><i>L</i><svg class="ic" viewBox="0 0 24 24"><use href="#i-cw"/></svg></button>
+    <button type="button" class="key" data-key="m" data-x="-1" data-th="-1" aria-label="Back and left, key M"><i>M</i><svg class="ic" style="--r:225deg" viewBox="0 0 24 24"><use href="#i-arrow"/></svg></button>
+    <button type="button" class="key" data-key="," data-x="-1" data-th="0"  aria-label="Back, key comma"><i>,</i><svg class="ic" style="--r:180deg" viewBox="0 0 24 24"><use href="#i-arrow"/></svg></button>
+    <button type="button" class="key" data-key="." data-x="-1" data-th="1"  aria-label="Back and right, key period"><i>.</i><svg class="ic" style="--r:135deg" viewBox="0 0 24 24"><use href="#i-arrow"/></svg></button>
+  </div>
+
+  <button id="stop-btn" class="stopbar" type="button" aria-label="Stop"><svg class="ic" viewBox="0 0 24 24"><use href="#i-stop"/></svg>STOP</button>
+
+  <div id="hint" class="hint">Switch on to take control.</div>
+
+  <section id="speed" class="speed">
+    <div class="title">SPEED</div>
+    <div class="row between readouts">
+      <div><span class="label">LINEAR</span><span class="value" id="max-lin">0.50</span></div>
+      <div class="right"><span class="label">TURN</span><span class="value" id="max-turn">1.00</span></div>
+    </div>
+    <div class="speed-row"><span><b class="lg">Both speeds</b><b class="sm">Both</b></span>
+      <button type="button" class="step" data-target="both" data-dir="-1" data-key="z" aria-label="Both speeds down 10 percent, key Z"><i>Z</i>-</button>
+      <button type="button" class="step" data-target="both" data-dir="1"  data-key="q" aria-label="Both speeds up 10 percent, key Q"><i>Q</i>+</button></div>
+    <div class="speed-row"><span><b class="lg">Linear only</b><b class="sm">Linear</b></span>
+      <button type="button" class="step" data-target="lin" data-dir="-1" data-key="x" aria-label="Linear speed down 10 percent, key X"><i>X</i>-</button>
+      <button type="button" class="step" data-target="lin" data-dir="1"  data-key="w" aria-label="Linear speed up 10 percent, key W"><i>W</i>+</button></div>
+    <div class="speed-row"><span><b class="lg">Turn only</b><b class="sm">Turn</b></span>
+      <button type="button" class="step" data-target="turn" data-dir="-1" data-key="c" aria-label="Turn speed down 10 percent, key C"><i>C</i>-</button>
+      <button type="button" class="step" data-target="turn" data-dir="1"  data-key="e" aria-label="Turn speed up 10 percent, key E"><i>E</i>+</button></div>
+  </section>
+</aside>
+
+<!-- Command being sent -->
+<div id="cmd" class="panel">
+  <div><span class="label">LINEAR</span><span class="value"><span id="cmd-lin">+0.00</span><small> m/s</small></span></div>
+  <div class="right"><span class="label">TURN</span><span class="value"><span id="cmd-ang">+0.00</span><small> rad/s</small></span></div>
+</div>
+
+<!-- Joystick (touch screens). Up = forward, down = reverse, left/right = turn. -->
+<div id="joy" role="application" aria-label="Joystick. Push up to go forward, down to reverse, left or right to turn.">
+  <svg id="joy-base" viewBox="0 0 170 170" aria-hidden="true">
+    <circle cx="85" cy="85" r="82" class="joy-ring"/>
+    <circle cx="85" cy="85" r="46" class="joy-inner"/>
+    <g class="joy-ticks">
+      <path d="M85 18v10M80 23l5-5 5 5"/><path d="M85 152v-10M80 147l5 5 5-5"/>
+      <path d="M18 85h10M23 80l-5 5 5 5"/><path d="M152 85h-10M147 80l5 5-5 5"/>
+    </g>
+  </svg>
+  <div id="joy-knob"></div>
+</div>
+
+<!-- Icon sprites -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <g id="i-arrow" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20V5"/><path d="M6 11l6-6 6 6"/></g>
+    <g id="i-ccw" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></g>
+    <g id="i-cw" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-9-9c2.52 0 4.93 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/></g>
+    <g id="i-stop" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round"><rect x="6" y="6" width="12" height="12" rx="2"/></g>
+  </defs>
+</svg>
+
+<script src="/drive/static/app.js"></script>
+</body>
+</html>

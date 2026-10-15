@@ -15,8 +15,8 @@ ROS2 Jazzy package for UGV1 — a payload-agnostic autonomous ground vehicle tar
 - `capture_node` — captures MJPEG from rpicam-vid, publishes `/video_raw` (CompressedImage). Run with `-p publish_raw:=true` to also publish `/video_raw_raw` (Image) for OpenVINS.
 - `imu_node` — raw MPU9250 driver, publishes `/imu/data_raw` at 100Hz
 - `motor_control_node` — subscribes to `/cmd_vel`, sends UART packets to Arduino
-- `process_node` — OpenCV processing of `/video_raw`, publishes `/video_processed`
-- `viewer_node` — web server on port 8080 (see below)
+- `process_node` — OpenCV processing of `/video_raw`, publishes `/video_processed`. Not used by the web interface or started by `start_ugv1.sh`; pending removal (see `TECH_DEBT.md`)
+- `web_node` — web server on port 8080 and manual-drive source for `/cmd_vel` (see below)
 - `odom_tf_node` — turns OpenVINS `/odomimu` (frames `global` -> `imu`) into the `odom -> base_link` transform and an `/odom` pose topic. base_link is the IMU frame turned 180 deg about z. Started with `--with-openvins` in the `ugv1_odom_tf` session.
 - `lidar.launch.py` — RPLidar A1M8 driver (`/scan`) plus the static transforms `base_link -> imu_link` and `base_link -> laser`. Started by `start_ugv1.sh` in the `ugv1_lidar` tmux session.
 
@@ -35,17 +35,26 @@ Exit code 0 means every request was answered, 1 means intermittent replies, 2 me
 
 ## Web interface
 
-`viewer_node` serves two Flask blueprints from `ugv1_controller/web/` (HTML, CSS and JS are plain files under `web/static/`):
+`web_node` serves two Flask blueprints from `ugv1_controller/web/` (HTML, CSS and JS are plain files under `web/static/`):
 
 | Path | Description |
 | --- | --- |
 | `/` | Landing page with project overview and hardware/software architecture diagrams |
-| `/processed-feed` | Side-by-side raw and processed camera viewer |
-| `/processed-feed/feed/raw`, `/processed-feed/feed/proc` | MJPEG streams |
-| `/processed-feed/mode/<mode>` | Set processing mode: raw, gray, edges, overlay |
-| `/status` | JSON health check |
+| `/drive` | First-person drive page: raw camera feed with a heads-up display, drive controls |
+| `/drive/feed/raw` | Raw MJPEG stream |
+| `/drive/api/state`, `enable`, `disable`, `cmd`, `speed` | Control API used by the page |
+| `/status` | JSON health check (camera frame age, drive state) |
 
-The processed feed needs `process_node` running; `start_ugv1.sh` starts `viewer_node` but not `process_node`.
+### Driving from the browser
+
+Open `http://<pi-ip>:8080/drive` on a desktop or phone. Nothing moves until **Drive Enable** is switched on.
+
+- **Desktop:** the keys of `teleop_twist_keyboard` (without the Shift sideways keys): `u i o / j k l / m , .` to move and turn, `k` to stop, `q z` both speeds +/- 10%, `w x` linear only, `e c` turn only. Hold a key to drive; release to stop. The same keys are on screen as buttons.
+- **Touch screens:** a joystick (bottom right: up forward, down reverse, left/right turn), plus Drive Enable, STOP and the speed buttons on the left.
+- **Drive Enable** belongs to one device at a time. It can only be switched off when no motion command is active and the IMU shows the rover at rest for 0.5 s; with no IMU data it refuses. A dropped connection or page reload releases it.
+- `web_node` publishes `/cmd_vel` at 20 Hz only while Drive Enable is on, so Nav2 can own `/cmd_vel` when it is off.
+- **Safety:** a command older than 0.3 s counts as zero, and `motor_control_node` stops the motors if `/cmd_vel` goes quiet for 0.5 s (`cmd_timeout` parameter, 0 disables). Anything else that drives the rover must publish faster than that.
+- Thresholds for "at rest" are parameters of `web_node` (`still_gyro_range` in rad/s, `still_accel_range` in m/s^2). Tune them from the `imu_gyro_range` and `imu_accel_range` values in `/status` with the rover resting.
 
 ## Running the stack
 
