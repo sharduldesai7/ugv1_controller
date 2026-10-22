@@ -22,6 +22,10 @@ ROS2 Jazzy package for UGV1 — a payload-agnostic autonomous ground vehicle tar
 
 Serial devices use stable names from `scripts/99-ugv1-usb.rules` (`/dev/rplidar`, `/dev/ugv_motor`); install the rules on the Pi before running the stack.
 
+## Simulation
+
+`sim/` holds a Gazebo Harmonic model of the rover and a textured warehouse, for testing OpenVINS (and later RTAB-Map and Nav2) without the real chassis: record a bag in the simulator, replay it on the Pi at real time, and score the result against ground truth. See `sim/README.md`.
+
 ## LiDAR health check
 
 `scripts/lidar_health_check.py` talks to the RPLidar directly over serial (no ROS) and reports whether it answers. Run it before launching the driver, and use it to hunt for a loose connector by flexing the cables while it runs:

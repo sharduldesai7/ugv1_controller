@@ -14,3 +14,11 @@ Left in the repo for now on purpose. To remove it:
   `ugv1_controller/web/static/landing/app.js`
 - remove its line from the README node list
 - delete this entry
+
+## Simulation is untested against a real Gazebo run
+
+`sim/`, `launch/sim.launch.py`, `config/sim/` and `scripts/sim/` were written
+without Gazebo or ROS available. Offline tests cover geometry, config
+consistency, route logic and the scoring maths (`test/test_sim_assets.py`,
+`test/test_vio_eval.py`); the SDF, bridge and launch file have only been
+checked for well-formedness. See the checklist in `sim/README.md`.
