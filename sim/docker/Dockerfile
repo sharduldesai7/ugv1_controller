@@ -13,6 +13,9 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
       git ca-certificates \
     && rm -rf /var/lib/apt/lists/*
 
+# vncpasswd is in its own package; kept as a separate layer so the big install above stays cached
+RUN apt-get update && apt-get install -y --no-install-recommends tigervnc-tools && rm -rf /var/lib/apt/lists/*
+
 ENV LIBGL_ALWAYS_SOFTWARE=1 GALLIUM_DRIVER=llvmpipe DISPLAY=:1
 RUN mkdir -p /root/.vnc && echo "password" | vncpasswd -f > /root/.vnc/passwd && chmod 600 /root/.vnc/passwd
 
