@@ -6,6 +6,11 @@ Run on the simulation machine (needs ros-jazzy-ros-gz-sim and ros-jazzy-ros-gz-b
   ros2 launch ugv1_controller sim.launch.py gui:=true      # with the Gazebo window
   ros2 launch ugv1_controller sim.launch.py route:=true    # drive the scripted route
 
+Rendering (the cameras and LiDAR are rendered, so Gazebo needs an OpenGL context):
+  render:=egl    headless EGL, no forced software rendering (default)
+  render:=xvfb   virtual X display with software OpenGL (needs: sudo apt install xvfb)
+  render:=soft-egl  headless EGL with software rendering forced (crashes in some VMs)
+
 Publishes /imu/data_raw, /video_raw_raw, /video_raw, /scan, /clock, /wheel_odom
 and /ground_truth/odom, and listens on /cmd_vel. Static transforms are the same
 as lidar.launch.py (base_link -> imu_link, laser).
@@ -18,7 +23,7 @@ from ament_index_python.packages import get_package_share_directory
 from launch import LaunchDescription
 from launch.actions import (DeclareLaunchArgument, ExecuteProcess, SetEnvironmentVariable)
 from launch.conditions import IfCondition, UnlessCondition
-from launch.substitutions import LaunchConfiguration
+from launch.substitutions import LaunchConfiguration, PythonExpression
 from launch_ros.actions import Node
 
 
@@ -29,6 +34,12 @@ def _static_tf(parent, child, x, y, z, yaw):
         arguments=['--x', x, '--y', y, '--z', z, '--yaw', yaw,
                    '--frame-id', parent, '--child-frame-id', child],
         parameters=[{'use_sim_time': True}])
+
+
+def _both(mode):
+    """True when the GUI is off and render equals `mode`."""
+    return PythonExpression(["'", LaunchConfiguration('gui'), "' == 'false' and '",
+                             LaunchConfiguration('render'), "' == '", mode, "'"])
 
 
 def generate_launch_description():
@@ -49,18 +60,27 @@ def generate_launch_description():
         DeclareLaunchArgument('route', default_value='false',
                               description='Drive the scripted route instead of the web page'),
         DeclareLaunchArgument('route_speed', default_value='0.3'),
+        DeclareLaunchArgument('render', default_value='egl',
+                              description='egl | xvfb | soft-egl (see the file header)'),
 
         SetEnvironmentVariable('GZ_SIM_RESOURCE_PATH', resource_path),
-        # Software rendering is the realistic case in a VM
-        SetEnvironmentVariable('LIBGL_ALWAYS_SOFTWARE', os.environ.get('LIBGL_ALWAYS_SOFTWARE', '1')),
-
-        # Simulator: server only (and headless rendering) unless the GUI is wanted
-        ExecuteProcess(
-            cmd=['gz', 'sim', '-r', '-s', '--headless-rendering', world],
-            output='screen', condition=UnlessCondition(LaunchConfiguration('gui'))),
+        # Simulator. With the GUI, a normal run; otherwise server only, in one of three
+        # rendering setups (the default needs no extra packages).
         ExecuteProcess(
             cmd=['gz', 'sim', '-r', world],
             output='screen', condition=IfCondition(LaunchConfiguration('gui'))),
+        ExecuteProcess(
+            cmd=['gz', 'sim', '-r', '-s', '--headless-rendering', world],
+            output='screen',
+            condition=IfCondition(_both('egl'))),
+        ExecuteProcess(
+            cmd=['gz', 'sim', '-r', '-s', '--headless-rendering', world],
+            additional_env={'LIBGL_ALWAYS_SOFTWARE': '1'}, output='screen',
+            condition=IfCondition(_both('soft-egl'))),
+        ExecuteProcess(
+            cmd=['xvfb-run', '-a', '-s', '-screen 0 1280x1024x24', 'gz', 'sim', '-r', '-s', world],
+            additional_env={'LIBGL_ALWAYS_SOFTWARE': '1'}, output='screen',
+            condition=IfCondition(_both('xvfb'))),
 
         Node(package='ros_gz_bridge', executable='parameter_bridge', name='sim_bridge',
              output='screen', parameters=[{'config_file': bridge_cfg}]),

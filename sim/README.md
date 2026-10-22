@@ -50,13 +50,29 @@ later once the base case works.
 Ubuntu 24.04 with ROS 2 Jazzy (you already have this in the UTM VM):
 
 ```bash
-sudo apt install ros-jazzy-ros-gz-sim ros-jazzy-ros-gz-bridge ros-jazzy-tf2-ros python3-opencv
+sudo apt update
+sudo apt install ros-jazzy-ros-gz-sim ros-jazzy-ros-gz-bridge ros-jazzy-tf2-ros python3-opencv python3-flask xvfb
 cd ~/ros2_ws/src/ugv1_controller && git pull
 cd ~/ros2_ws && colcon build --packages-select ugv1_controller --symlink-install && source install/setup.bash
 ```
 
 If you have not pulled the OpenVINS workspace there, nothing else is needed:
 the simulation machine does not run OpenVINS in this plan.
+
+## If Gazebo crashes at start-up (rendering)
+
+The cameras and LiDAR are rendered, so Gazebo needs an OpenGL context even with
+no window. In a VM without a GPU the default can segfault inside `libEGL_mesa`.
+Try, in this order, until `gz` stays up:
+
+```bash
+ros2 launch ugv1_controller sim.launch.py                  # render:=egl (default)
+ros2 launch ugv1_controller sim.launch.py render:=xvfb     # virtual display, software OpenGL
+ros2 launch ugv1_controller sim.launch.py gui:=true        # with a desktop session in the VM
+```
+
+The `gz_frame_id ... not defined in SDF` lines are warnings and can be ignored;
+check 2 below shows whether the frame names came out right.
 
 ## Run it
 
