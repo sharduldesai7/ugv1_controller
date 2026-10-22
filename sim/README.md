@@ -80,6 +80,20 @@ acceleration), so only llvmpipe exists; the desktop is a little slower, Gazebo w
 The `gz_frame_id ... not defined in SDF` lines are warnings and can be ignored;
 check 2 below shows whether the frame names came out right.
 
+## Alternative: run the simulation in a Docker container on the Mac
+
+If the UTM VM's graphics will not work, `sim/docker/` builds a native arm64 Ubuntu 24.04
+container with ROS 2 Jazzy, Gazebo Harmonic and a VNC desktop. It has no GPU device, so
+rendering is software and works. From a clone of this repository on the Mac:
+
+```bash
+sim/docker/run.sh                      # builds the image, starts the container 'ugv1-sim'
+docker exec -it ugv1-sim bash          # then follow the printed steps (colcon build, launch)
+```
+
+Bags are written to `~/sim_bags` on the Mac; copy them to the Pi with `scp -r`. The
+record script expects `~/ros2_ws` inside the container, which is where the image puts it.
+
 ## Run it
 
 ```bash
