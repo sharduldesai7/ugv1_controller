@@ -36,6 +36,11 @@ def _static_tf(parent, child, x, y, z, yaw):
         parameters=[{'use_sim_time': True}])
 
 
+# Force Mesa's software renderer (llvmpipe, OpenGL 4.5). In a UTM VM Mesa otherwise picks
+# virgl, which only offers OpenGL 2.1 and cannot run Gazebo's renderer.
+_SOFT = {'LIBGL_ALWAYS_SOFTWARE': '1', 'GALLIUM_DRIVER': 'llvmpipe'}
+
+
 def _both(mode):
     """True when the GUI is off and render equals `mode`."""
     return PythonExpression(["'", LaunchConfiguration('gui'), "' == 'false' and '",
@@ -75,11 +80,11 @@ def generate_launch_description():
             condition=IfCondition(_both('egl'))),
         ExecuteProcess(
             cmd=['gz', 'sim', '-r', '-s', '--headless-rendering', world],
-            additional_env={'LIBGL_ALWAYS_SOFTWARE': '1'}, output='screen',
+            additional_env=_SOFT, output='screen',
             condition=IfCondition(_both('soft-egl'))),
         ExecuteProcess(
             cmd=['xvfb-run', '-a', '-s', '-screen 0 1280x1024x24', 'gz', 'sim', '-r', '-s', world],
-            additional_env={'LIBGL_ALWAYS_SOFTWARE': '1'}, output='screen',
+            additional_env=_SOFT, output='screen',
             condition=IfCondition(_both('xvfb'))),
 
         Node(package='ros_gz_bridge', executable='parameter_bridge', name='sim_bridge',

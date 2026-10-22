@@ -71,6 +71,12 @@ ros2 launch ugv1_controller sim.launch.py render:=xvfb     # virtual display, so
 ros2 launch ugv1_controller sim.launch.py gui:=true        # with a desktop session in the VM
 ```
 
+In a UTM VM the usual cause is Mesa choosing `virgl` (OpenGL 2.1 only), which shows
+up as `OpenGL 3.3 is not supported` or a segfault in `libEGL_mesa`. `render:=xvfb`
+forces the software renderer (llvmpipe). If that still crashes, shut the VM down and
+in UTM change Devices > Display > Emulated Display Card to `virtio-ramfb` (no GPU
+acceleration), so only llvmpipe exists; the desktop is a little slower, Gazebo works.
+
 The `gz_frame_id ... not defined in SDF` lines are warnings and can be ignored;
 check 2 below shows whether the frame names came out right.
 
