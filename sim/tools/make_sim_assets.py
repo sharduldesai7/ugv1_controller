@@ -113,7 +113,7 @@ def camera_pose_in_base(T_imu_cam):
     return tuple(p_base), rpy_from_matrix(R_base_gz), R_imu_cam
 
 
-def imu_noise(noise_scale=1.0):
+def imu_noise(noise_scale=1.0, bias_scale=1.0):
     """Continuous-time Kalibr noise -> per-sample Gazebo noise at IMU_RATE.
 
     Gazebo has white noise per sample plus a first-order Gauss-Markov bias. A
@@ -124,9 +124,9 @@ def imu_noise(noise_scale=1.0):
     dt_root = math.sqrt(IMU_RATE)
     return {
         'gyro_sigma': 1.134e-4 * dt_root * noise_scale,
-        'gyro_bias_sigma': 3.0e-5 * math.sqrt(tau / 2.0) * noise_scale,
+        'gyro_bias_sigma': 3.0e-5 * math.sqrt(tau / 2.0) * noise_scale * bias_scale,
         'accel_sigma': 7.5e-4 * dt_root * noise_scale,
-        'accel_bias_sigma': 8.0e-4 * math.sqrt(tau / 2.0) * noise_scale,
+        'accel_bias_sigma': 8.0e-4 * math.sqrt(tau / 2.0) * noise_scale * bias_scale,
         'tau': tau,
     }
 
@@ -359,8 +359,8 @@ MODEL_CONFIG = """<?xml version="1.0"?>
 
 
 # ── Rover model ───────────────────────────────────────────────────────────────
-def build_rover(cam_xyz, cam_rpy, camera_format, noise_scale):
-    n = imu_noise(noise_scale)
+def build_rover(cam_xyz, cam_rpy, camera_format, noise_scale, bias_scale=1.0):
+    n = imu_noise(noise_scale, bias_scale)
     cx, cy, cz = CHASSIS
     ixx, iyy, izz = box_inertia(CHASSIS_MASS, cx, cy, cz)
     wr = WHEEL_RADIUS
@@ -544,6 +544,9 @@ def main():
                     help='L8 (mono8) is what OpenVINS consumes and is 3x smaller; R8G8B8 (rgb8) if the bridge rejects L8')
     ap.add_argument('--imu-noise-scale', type=float, default=1.0,
                     help='multiply the Kalibr IMU noise (0 = noiseless IMU)')
+    ap.add_argument('--imu-bias-scale', type=float, default=1.0,
+                    help='extra factor on the slowly varying IMU bias only (Gazebo showed about 0.1-0.2 m/s^2 '
+                         'of accel bias at 1.0; try 0.1 to match the Kalibr random walk)')
     args = ap.parse_args()
 
     kal = yaml.safe_load((REPO / 'config' / 'kalibr_imucam_chain.yaml').read_text().replace('%YAML:1.0', ''))
@@ -567,7 +570,7 @@ def main():
 
     rv = REPO / 'sim' / 'models' / 'ugv1_rover'
     rv.mkdir(parents=True, exist_ok=True)
-    (rv / 'model.sdf').write_text(build_rover(cam_xyz, cam_rpy, args.camera_format, args.imu_noise_scale))
+    (rv / 'model.sdf').write_text(build_rover(cam_xyz, cam_rpy, args.camera_format, args.imu_noise_scale, args.imu_bias_scale))
     (rv / 'model.config').write_text(MODEL_CONFIG.format(name='ugv1_rover', desc='UGV1 differential-drive rover with camera, IMU and LiDAR'))
 
     (REPO / 'sim' / 'worlds').mkdir(parents=True, exist_ok=True)
