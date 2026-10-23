@@ -94,7 +94,9 @@ def read_bag(path, topics):
     import rosbag2_py
     from rclpy.serialization import deserialize_message
     from rosidl_runtime_py.utilities import get_message
-    reader = rosbag2_py.SequentialReader()
+    # The compression reader also opens plain bags; record_sim_bag.sh makes zstd-compressed ones
+    reader_cls = getattr(rosbag2_py, 'SequentialCompressionReader', rosbag2_py.SequentialReader)
+    reader = reader_cls()
     storage = rosbag2_py.StorageOptions(uri=path, storage_id='')
     conv = rosbag2_py.ConverterOptions('', '')
     reader.open(storage, conv)

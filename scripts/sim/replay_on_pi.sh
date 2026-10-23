@@ -35,16 +35,18 @@ rm -rf "$OUT/openvins_out"
 tmux new-session -d -s sim_rec "source ~/ros2_ws/install/setup.bash; ros2 bag record -o $OUT/openvins_out /odomimu /odom /imu/data_raw"
 sleep 2
 
-# CPU logger: OpenVINS process (run_subscribe_msckf)
+# CPU logger: the OpenVINS program itself (process name run_subscribe_m, as ps truncates it).
+# Matching the command line instead would also hit the tmux shell that launched it.
 ( echo "time_s,ov_cpu_percent,ov_rss_mb,load1"
   t0=$(date +%s)
   while true; do
-    pid=$(pgrep -f run_subscribe_msckf | head -n1)
+    pid=$(pgrep -x run_subscribe_m | head -n1)
     if [ -n "$pid" ]; then
-      read -r cpu rss < <(ps -o %cpu=,rss= -p "$pid")
-      echo "$(( $(date +%s) - t0 )),$cpu,$(( ${rss%.*} / 1024 )),$(cut -d' ' -f1 /proc/loadavg)"
+      cpu=$(top -b -n 2 -d 0.5 -p "$pid" | awk -v p="$pid" '$1==p {c=$9} END {print c}')
+      rss=$(ps -o rss= -p "$pid" | tr -d ' ')
+      echo "$(( $(date +%s) - t0 )),${cpu:-0},$(( ${rss:-0} / 1024 )),$(cut -d' ' -f1 /proc/loadavg)"
     fi
-    sleep 1
+    sleep 0.5
   done ) > "$OUT/cpu.csv" &
 LOGGER=$!
 
