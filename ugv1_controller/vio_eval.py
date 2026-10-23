@@ -94,9 +94,17 @@ def read_bag(path, topics):
     import rosbag2_py
     from rclpy.serialization import deserialize_message
     from rosidl_runtime_py.utilities import get_message
-    # The compression reader also opens plain bags; record_sim_bag.sh makes zstd-compressed ones
-    reader_cls = getattr(rosbag2_py, 'SequentialCompressionReader', rosbag2_py.SequentialReader)
-    reader = reader_cls()
+    # record_sim_bag.sh makes zstd-compressed bags; the OpenVINS output bag is plain.
+    # The compression reader rejects plain bags, so pick by the bag's metadata.
+    compressed = False
+    try:
+        compressed = bool(rosbag2_py.Info().read_metadata(path, '').compression_format)
+    except Exception:
+        pass
+    if compressed and hasattr(rosbag2_py, 'SequentialCompressionReader'):
+        reader = rosbag2_py.SequentialCompressionReader()
+    else:
+        reader = rosbag2_py.SequentialReader()
     storage = rosbag2_py.StorageOptions(uri=path, storage_id='')
     conv = rosbag2_py.ConverterOptions('', '')
     reader.open(storage, conv)
