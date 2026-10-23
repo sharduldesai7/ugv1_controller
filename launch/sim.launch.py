@@ -65,6 +65,8 @@ def generate_launch_description():
         DeclareLaunchArgument('route', default_value='false',
                               description='Drive the scripted route instead of the web page'),
         DeclareLaunchArgument('route_speed', default_value='0.3'),
+        DeclareLaunchArgument('route_start_delay', default_value='30.0',
+                              description='Simulated seconds the rover stands still before driving'),
         DeclareLaunchArgument('render', default_value='egl',
                               description='egl | xvfb | soft-egl (see the file header)'),
 
@@ -98,6 +100,7 @@ def generate_launch_description():
         Node(package='ugv1_controller', executable='web_node', output='screen',
              parameters=[sim_time], condition=IfCondition(LaunchConfiguration('web'))),
         Node(package='ugv1_controller', executable='sim_route_node', output='screen',
-             parameters=[sim_time, {'speed': LaunchConfiguration('route_speed')}],
+             parameters=[sim_time, {'speed': LaunchConfiguration('route_speed'),
+                                    'start_delay': LaunchConfiguration('route_start_delay')}],
              condition=IfCondition(LaunchConfiguration('route'))),
     ])

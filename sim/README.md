@@ -97,7 +97,7 @@ record script expects `~/ros2_ws` inside the container, which is where the image
 ## Run it
 
 ```bash
-# terminal 1: simulator, bridge, web page; the rover drives the scripted route
+# terminal 1: simulator, bridge, web page; the rover waits 30 s (simulated), then drives the route
 ros2 launch ugv1_controller sim.launch.py route:=true
 
 # terminal 2: record (Ctrl-C when the route node says "Route finished", about 4 min of simulated time)

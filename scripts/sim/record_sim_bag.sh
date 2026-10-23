@@ -1,6 +1,7 @@
 #!/bin/bash
 # Record the simulated sensors and ground truth. Run on the simulation machine
-# after `ros2 launch ugv1_controller sim.launch.py route:=true` is up.
+# AFTER `ros2 launch ugv1_controller sim.launch.py route:=true` is up (the rover stands still for
+# 30 s of simulated time first, so there is time to start this; --use-sim-time needs the clock).
 #
 #   ./record_sim_bag.sh [bag_name]
 #
