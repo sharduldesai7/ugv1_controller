@@ -546,9 +546,10 @@ def main():
                     help='L8 (mono8) is what OpenVINS consumes and is 3x smaller; R8G8B8 (rgb8) if the bridge rejects L8')
     ap.add_argument('--imu-noise-scale', type=float, default=1.0,
                     help='multiply the Kalibr IMU noise (0 = noiseless IMU)')
-    ap.add_argument('--imu-bias-scale', type=float, default=1.0,
-                    help='extra factor on the slowly varying IMU bias only (Gazebo showed about 0.1-0.2 m/s^2 '
-                         'of accel bias at 1.0; try 0.1 to match the Kalibr random walk)')
+    ap.add_argument('--imu-bias-scale', type=float, default=0.1,
+                    help='extra factor on the slowly varying IMU bias only. Measured in the first bag: at 1.0 '
+                         'Gazebo\'s bias wandered to about 6 mrad/s (gyro) and 0.1 m/s^2 (accel) in 5 minutes, '
+                         'roughly 10x what the Kalibr random walk implies, so the default is 0.1')
     args = ap.parse_args()
 
     kal = yaml.safe_load((REPO / 'config' / 'kalibr_imucam_chain.yaml').read_text().replace('%YAML:1.0', ''))

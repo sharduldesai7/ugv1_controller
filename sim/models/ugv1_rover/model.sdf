@@ -25,14 +25,14 @@
       <gz_frame_id>imu_link</gz_frame_id>
       <imu>
         <angular_velocity>
-          <x><noise type="gaussian"><mean>0.0</mean><stddev>0.001134</stddev><bias_mean>0.0</bias_mean><bias_stddev>0.0</bias_stddev><dynamic_bias_stddev>0.000367423</dynamic_bias_stddev><dynamic_bias_correlation_time>300</dynamic_bias_correlation_time></noise></x>
-          <y><noise type="gaussian"><mean>0.0</mean><stddev>0.001134</stddev><bias_mean>0.0</bias_mean><bias_stddev>0.0</bias_stddev><dynamic_bias_stddev>0.000367423</dynamic_bias_stddev><dynamic_bias_correlation_time>300</dynamic_bias_correlation_time></noise></y>
-          <z><noise type="gaussian"><mean>0.0</mean><stddev>0.001134</stddev><bias_mean>0.0</bias_mean><bias_stddev>0.0</bias_stddev><dynamic_bias_stddev>0.000367423</dynamic_bias_stddev><dynamic_bias_correlation_time>300</dynamic_bias_correlation_time></noise></z>
+          <x><noise type="gaussian"><mean>0.0</mean><stddev>0.001134</stddev><bias_mean>0.0</bias_mean><bias_stddev>0.0</bias_stddev><dynamic_bias_stddev>3.67423e-05</dynamic_bias_stddev><dynamic_bias_correlation_time>300</dynamic_bias_correlation_time></noise></x>
+          <y><noise type="gaussian"><mean>0.0</mean><stddev>0.001134</stddev><bias_mean>0.0</bias_mean><bias_stddev>0.0</bias_stddev><dynamic_bias_stddev>3.67423e-05</dynamic_bias_stddev><dynamic_bias_correlation_time>300</dynamic_bias_correlation_time></noise></y>
+          <z><noise type="gaussian"><mean>0.0</mean><stddev>0.001134</stddev><bias_mean>0.0</bias_mean><bias_stddev>0.0</bias_stddev><dynamic_bias_stddev>3.67423e-05</dynamic_bias_stddev><dynamic_bias_correlation_time>300</dynamic_bias_correlation_time></noise></z>
         </angular_velocity>
         <linear_acceleration>
-          <x><noise type="gaussian"><mean>0.0</mean><stddev>0.0075</stddev><bias_mean>0.0</bias_mean><bias_stddev>0.0</bias_stddev><dynamic_bias_stddev>0.00979796</dynamic_bias_stddev><dynamic_bias_correlation_time>300</dynamic_bias_correlation_time></noise></x>
-          <y><noise type="gaussian"><mean>0.0</mean><stddev>0.0075</stddev><bias_mean>0.0</bias_mean><bias_stddev>0.0</bias_stddev><dynamic_bias_stddev>0.00979796</dynamic_bias_stddev><dynamic_bias_correlation_time>300</dynamic_bias_correlation_time></noise></y>
-          <z><noise type="gaussian"><mean>0.0</mean><stddev>0.0075</stddev><bias_mean>0.0</bias_mean><bias_stddev>0.0</bias_stddev><dynamic_bias_stddev>0.00979796</dynamic_bias_stddev><dynamic_bias_correlation_time>300</dynamic_bias_correlation_time></noise></z>
+          <x><noise type="gaussian"><mean>0.0</mean><stddev>0.0075</stddev><bias_mean>0.0</bias_mean><bias_stddev>0.0</bias_stddev><dynamic_bias_stddev>0.000979796</dynamic_bias_stddev><dynamic_bias_correlation_time>300</dynamic_bias_correlation_time></noise></x>
+          <y><noise type="gaussian"><mean>0.0</mean><stddev>0.0075</stddev><bias_mean>0.0</bias_mean><bias_stddev>0.0</bias_stddev><dynamic_bias_stddev>0.000979796</dynamic_bias_stddev><dynamic_bias_correlation_time>300</dynamic_bias_correlation_time></noise></y>
+          <z><noise type="gaussian"><mean>0.0</mean><stddev>0.0075</stddev><bias_mean>0.0</bias_mean><bias_stddev>0.0</bias_stddev><dynamic_bias_stddev>0.000979796</dynamic_bias_stddev><dynamic_bias_correlation_time>300</dynamic_bias_correlation_time></noise></z>
         </linear_acceleration>
       </imu>
     </sensor>
