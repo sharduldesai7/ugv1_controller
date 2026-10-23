@@ -25,7 +25,9 @@ echo "Recording to $OUT for up to ${DURATION} s (Ctrl-C to stop earlier)"
 # slower than the sensors ran; replay with RATE set to simulated seconds per wall second
 # (for example RATE=1.28 when the simulation runs at 0.78x), see replay_on_pi.sh.
 SIMFLAG="--use-sim-time"; [ -n "$NO_SIM_TIME" ] && SIMFLAG=""
-timeout -s INT -k 120 "$DURATION" ros2 bag record -o "$OUT" $SIMFLAG \
+# --foreground and no stdin: without them the recorder (which reads the keyboard) is stopped
+# by the shell as a background job and never records anything.
+timeout --foreground -s INT -k 120 "$DURATION" ros2 bag record -o "$OUT" $SIMFLAG \
   --compression-mode file --compression-format zstd \
-  --topics /imu/data_raw /video_raw_raw /scan /ground_truth/odom /wheel_odom || true
+  --topics /imu/data_raw /video_raw_raw /scan /ground_truth/odom /wheel_odom < /dev/null || true
 echo "Stopped. Contents:"; ls -lh "$OUT"; ros2 bag info "$OUT" | head -20
