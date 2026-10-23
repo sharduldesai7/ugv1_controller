@@ -28,7 +28,7 @@ tmux kill-session -t sim_ov 2>/dev/null || true
 tmux kill-session -t sim_odom_tf 2>/dev/null || true
 tmux kill-session -t sim_rec 2>/dev/null || true
 
-tmux new-session -d -s sim_ov "source ~/ros2_ws/install/setup.bash; ros2 run ov_msckf run_subscribe_msckf --ros-args -p config_path:=$CFG"
+tmux new-session -d -s sim_ov "source ~/ros2_ws/install/setup.bash; ros2 run ov_msckf run_subscribe_msckf --ros-args -p config_path:=$CFG 2>&1 | tee $OUT/openvins.log; echo OPENVINS EXITED >> $OUT/openvins.log; sleep 600"
 tmux new-session -d -s sim_odom_tf "source ~/ros2_ws/install/setup.bash; ros2 run ugv1_controller odom_tf_node"
 sleep 5
 rm -rf "$OUT/openvins_out"
