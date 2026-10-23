@@ -22,6 +22,19 @@ OUT="$HOME/sim_runs/$NAME"
 CFG="$HOME/ros2_ws/src/ugv1_controller/config/sim/estimator_config.yaml"
 [ -f "$CFG" ] || { echo "Missing $CFG (git pull and colcon build first)"; exit 1; }
 mkdir -p "$OUT"
+
+# Config experiments without touching the repo: OVERRIDES="try_zupt=false max_clones=12" replay_on_pi.sh ...
+# copies config/sim to the run folder and changes those top-level keys there.
+if [ -n "${OVERRIDES:-}" ]; then
+  rm -rf "$OUT/config" && cp -r "$(dirname "$CFG")" "$OUT/config"
+  CFG="$OUT/config/estimator_config.yaml"
+  for kv in $OVERRIDES; do
+    k="${kv%%=*}"; v="${kv#*=}"
+    grep -q "^$k:" "$CFG" || { echo "Override key '$k' not found in $CFG"; exit 1; }
+    sed -i "s|^$k:.*|$k: $v|" "$CFG"
+    echo "override: $k = $v"
+  done
+fi
 source ~/ros2_ws/install/setup.bash
 
 tmux kill-session -t sim_ov 2>/dev/null || true
