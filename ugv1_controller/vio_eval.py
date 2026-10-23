@@ -124,9 +124,12 @@ def odom_arrays(items):
     return t, p
 
 
-def print_timeline(t_est, p_est, t_gt, p_gt, step):
+def print_timeline(t_est, p_est, t_gt, p_gt, step, ori_est=None, ori_gt=None):
     """Where the estimate leaves the truth: speed and distance from start, side by side."""
-    print(f"\n{'t (s)':>7} {'est speed':>10} {'true speed':>11} {'est dist':>10} {'true dist':>10}   (m/s, m from the start)")
+    cols = f"\n{'t (s)':>7} {'est speed':>10} {'true speed':>11} {'est dist':>10} {'true dist':>10}"
+    if ori_est is not None:
+        cols += f" {'est turn':>9} {'true turn':>10} {'est tilt':>9} {'true tilt':>10}"
+    print(cols + "   (m/s, m from start, deg turned since start, deg tilt from vertical)")
     t0 = t_est[0]
     for k in range(int((t_est[-1] - t0) // step) + 1):
         t = t0 + k * step
@@ -136,7 +139,21 @@ def print_timeline(t_est, p_est, t_gt, p_gt, step):
         jg = min(int(np.searchsorted(t_gt, t_gt[ig] + 1.0)), len(t_gt) - 1)
         ve = np.linalg.norm(p_est[je] - p_est[ie]) / max(t_est[je] - t_est[ie], 1e-6)
         vg = np.linalg.norm(p_gt[jg] - p_gt[ig]) / max(t_gt[jg] - t_gt[ig], 1e-6)
-        print(f"{t_est[ie] - t0:7.0f} {ve:10.2f} {vg:11.2f} {np.linalg.norm(p_est[ie] - p_est[0]):10.1f} {np.linalg.norm(p_gt[ig] - p_gt[0]):10.1f}")
+        row = f"{t_est[ie] - t0:7.0f} {ve:10.2f} {vg:11.2f} {np.linalg.norm(p_est[ie] - p_est[0]):10.1f} {np.linalg.norm(p_gt[ig] - p_gt[0]):10.1f}"
+        if ori_est is not None:
+            (ye, te), (yg, tg) = ori_est, ori_gt
+            row += f" {ye[ie] - ye[0]:9.1f} {yg[ig] - yg[0]:10.1f} {te[ie]:9.2f} {tg[ig]:10.2f}"
+        print(row)
+
+
+def odom_yaw_tilt(items):
+    """Unwrapped heading (deg) and tilt of the body z axis from vertical (deg) per message."""
+    q = np.array([[m.pose.pose.orientation.x, m.pose.pose.orientation.y,
+                   m.pose.pose.orientation.z, m.pose.pose.orientation.w] for m, _ in items])
+    x, y, z, w = q.T
+    yaw = np.degrees(np.unwrap(np.arctan2(2 * (w * z + x * y), 1 - 2 * (y * y + z * z))))
+    tilt = np.degrees(np.arccos(np.clip(1 - 2 * (x * x + y * y), -1, 1)))
+    return yaw, tilt
 
 
 def main():
@@ -167,7 +184,7 @@ def main():
     print(f"closed-loop gap        estimate {r['end_gap_est_m']:.2f} m, truth {r['end_gap_gt_m']:.2f} m")
     print(f"heading offset         {r['heading_offset_deg']:.1f} deg (OpenVINS frame vs world)")
     if args.timeline > 0:
-        print_timeline(t_est, p_est, t_gt, p_gt, args.timeline)
+        print_timeline(t_est, p_est, t_gt, p_gt, args.timeline, odom_yaw_tilt(est), odom_yaw_tilt(gt))
     imu = est_bag['/imu/data_raw']
     if imu:
         ti = np.array([m.header.stamp.sec + m.header.stamp.nanosec * 1e-9 for m, _ in imu])
