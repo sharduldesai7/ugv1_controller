@@ -21,7 +21,11 @@ source ~/ros2_ws/install/setup.bash
 
 DURATION="${DURATION:-600}"
 echo "Recording to $OUT for up to ${DURATION} s (Ctrl-C to stop earlier)"
-timeout -s INT -k 120 "$DURATION" ros2 bag record -o "$OUT" --use-sim-time \
+# NO_SIM_TIME=1 records with wall-clock stamps instead (fallback). The bag then plays back
+# slower than the sensors ran; replay with RATE set to simulated seconds per wall second
+# (for example RATE=1.28 when the simulation runs at 0.78x), see replay_on_pi.sh.
+SIMFLAG="--use-sim-time"; [ -n "$NO_SIM_TIME" ] && SIMFLAG=""
+timeout -s INT -k 120 "$DURATION" ros2 bag record -o "$OUT" $SIMFLAG \
   --compression-mode file --compression-format zstd \
-  /imu/data_raw /video_raw_raw /scan /ground_truth/odom /wheel_odom || true
+  --topics /imu/data_raw /video_raw_raw /scan /ground_truth/odom /wheel_odom || true
 echo "Stopped. Contents:"; ls -lh "$OUT"; ros2 bag info "$OUT" | head -20

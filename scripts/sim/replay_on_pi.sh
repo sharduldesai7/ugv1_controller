@@ -3,6 +3,7 @@
 # and record what OpenVINS produces plus Pi CPU use.
 #
 #   ./replay_on_pi.sh <sim_bag_dir> [out_name]
+#   RATE=1.28 ./replay_on_pi.sh ...    # only for bags recorded with NO_SIM_TIME=1, see record_sim_bag.sh
 #
 # Copy the bag to the Pi first (scp -r). Stop the real sensor nodes first
 # (tmux kill-server): the replay publishes the same topic names.
@@ -48,7 +49,7 @@ sleep 2
 LOGGER=$!
 
 echo "Playing $BAG at 1x. Leave the Pi otherwise idle so the CPU figures are meaningful."
-ros2 bag play "$BAG" --topics /imu/data_raw /video_raw_raw /scan --rate 1.0
+ros2 bag play "$BAG" --topics /imu/data_raw /video_raw_raw /scan --rate "${RATE:-1.0}"
 sleep 3
 kill $LOGGER 2>/dev/null || true
 tmux send-keys -t sim_rec C-c
