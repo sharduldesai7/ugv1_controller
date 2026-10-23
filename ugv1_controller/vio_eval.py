@@ -124,12 +124,29 @@ def odom_arrays(items):
     return t, p
 
 
+def print_timeline(t_est, p_est, t_gt, p_gt, step):
+    """Where the estimate leaves the truth: speed and distance from start, side by side."""
+    print(f"\n{'t (s)':>7} {'est speed':>10} {'true speed':>11} {'est dist':>10} {'true dist':>10}   (m/s, m from the start)")
+    t0 = t_est[0]
+    for k in range(int((t_est[-1] - t0) // step) + 1):
+        t = t0 + k * step
+        ie = min(int(np.searchsorted(t_est, t)), len(t_est) - 1)
+        ig = min(int(np.searchsorted(t_gt, t_est[ie])), len(t_gt) - 1)
+        je = min(int(np.searchsorted(t_est, t_est[ie] + 1.0)), len(t_est) - 1)
+        jg = min(int(np.searchsorted(t_gt, t_gt[ig] + 1.0)), len(t_gt) - 1)
+        ve = np.linalg.norm(p_est[je] - p_est[ie]) / max(t_est[je] - t_est[ie], 1e-6)
+        vg = np.linalg.norm(p_gt[jg] - p_gt[ig]) / max(t_gt[jg] - t_gt[ig], 1e-6)
+        print(f"{t_est[ie] - t0:7.0f} {ve:10.2f} {vg:11.2f} {np.linalg.norm(p_est[ie] - p_est[0]):10.1f} {np.linalg.norm(p_gt[ig] - p_gt[0]):10.1f}")
+
+
 def main():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument('--truth', required=True)
     ap.add_argument('--est', required=True)
     ap.add_argument('--truth-topic', default='/ground_truth/odom')
     ap.add_argument('--est-topic', default='/odomimu')
+    ap.add_argument('--timeline', type=float, default=0.0, metavar='SEC',
+                    help='also print estimated and true speed and distance from start every SEC seconds')
     args = ap.parse_args()
 
     gt = read_bag(args.truth, [args.truth_topic])[args.truth_topic]
@@ -149,6 +166,8 @@ def main():
     print(f"ATE, scale fitted      {r['ate_rmse_scaled_m']:.3f} m RMSE")
     print(f"closed-loop gap        estimate {r['end_gap_est_m']:.2f} m, truth {r['end_gap_gt_m']:.2f} m")
     print(f"heading offset         {r['heading_offset_deg']:.1f} deg (OpenVINS frame vs world)")
+    if args.timeline > 0:
+        print_timeline(t_est, p_est, t_gt, p_gt, args.timeline)
     imu = est_bag['/imu/data_raw']
     if imu:
         ti = np.array([m.header.stamp.sec + m.header.stamp.nanosec * 1e-9 for m, _ in imu])
