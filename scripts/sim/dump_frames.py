@@ -5,15 +5,20 @@ Usage: python3 scripts/sim/dump_frames.py BAG START_S END_S [OUT.png] [COUNT=12]
 
 START_S and END_S are seconds since the first camera frame in the bag. Frames are picked evenly
 in that window. Each tile is labelled with its time and the number of FAST corners (threshold 20,
-like the tracker's fast_threshold) so a textureless or repetitive view stands out.
+like the tracker's fast_threshold) so a textureless or repetitive view stands out. raw is the image as recorded; eq is after histogram
+equalisation, which is what OpenVINS tracks on.
 Keep the window short (30 s or less): only frames inside it are held in memory.
 """
 import sys
 import numpy as np
 
 
-def corner_count(gray, threshold=20):
+def corner_count(gray, threshold=20, equalize=False):
+    """FAST corners. equalize=True first applies histogram equalisation, as OpenVINS does with
+    histogram_method HISTOGRAM, which is what the tracker really sees."""
     import cv2
+    if equalize:
+        gray = cv2.equalizeHist(gray)
     return len(cv2.FastFeatureDetector_create(threshold=threshold, nonmaxSuppression=True).detect(gray))
 
 
@@ -69,7 +74,7 @@ def main():
     path, t0, t1 = sys.argv[1], float(sys.argv[2]), float(sys.argv[3])
     out = sys.argv[4] if len(sys.argv) > 4 else 'frames.png'
     count = int(sys.argv[5]) if len(sys.argv) > 5 else 12
-    tiles = [(f't={t:5.1f}s corners={corner_count(g)}', g) for t, g in read_frames(path, t0, t1, count)]
+    tiles = [(f't={t:5.1f}s raw={corner_count(g)} eq={corner_count(g, equalize=True)}', g) for t, g in read_frames(path, t0, t1, count)]
     cv2.imwrite(out, make_sheet(tiles))
     print(f'wrote {out} with {len(tiles)} frames')
     for label, _ in tiles:
