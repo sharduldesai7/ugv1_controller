@@ -203,7 +203,7 @@ This produces the full `T_cam_imu` transform and time offset.
 
 Copy outputs into UGV1 config:
 
-**`~/ros2_ws/src/ugv1_controller/config/kalibr_imucam_chain.yaml`:**
+**`~/ros2_ws/src/ugv1_controller/config/vio/kalibr_imucam_chain.yaml`:**
 ```yaml
 %YAML:1.0
 cam0:
@@ -222,7 +222,7 @@ cam0:
   timeshift_cam_imu: -0.185              # update with new value
 ```
 
-**`~/ros2_ws/src/ugv1_controller/config/kalibr_imu_chain.yaml`:**
+**`~/ros2_ws/src/ugv1_controller/config/vio/kalibr_imu_chain.yaml`:**
 Update `update_rate` if IMU rate changed.
 
 **Commit and push:**

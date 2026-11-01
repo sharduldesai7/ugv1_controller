@@ -31,7 +31,7 @@ class SimAssetsTest(unittest.TestCase):
 
     def test_camera_in_sdf_reproduces_real_extrinsics(self):
         """Rebuild T_imu_cam from the SDF poses and compare with the Kalibr result."""
-        T_real, _ = read_T(REPO / 'config/kalibr_imucam_chain.yaml')
+        T_real, _ = read_T(REPO / 'config/vio/kalibr_imucam_chain.yaml')
         x, y, z, r, p, yw = self.sensor_pose('camera')
         R_base_gz = gen.matrix_from_rpy(r, p, yw)
         imu = self.sensor_pose('imu')
@@ -50,8 +50,8 @@ class SimAssetsTest(unittest.TestCase):
         self.assertAlmostEqual(math.degrees(-p), 7.9, delta=0.2)
 
     def test_sim_openvins_camera_matches_sensor(self):
-        T_sim, cam = read_T(REPO / 'config/sim/kalibr_imucam_chain.yaml')
-        T_real, _ = read_T(REPO / 'config/kalibr_imucam_chain.yaml')
+        T_sim, cam = read_T(REPO / 'config/vio/sim/kalibr_imucam_chain.yaml')
+        T_real, _ = read_T(REPO / 'config/vio/kalibr_imucam_chain.yaml')
         np.testing.assert_allclose(T_sim[:3, 3], T_real[:3, 3], atol=1e-8)
         fx = cam['intrinsics'][0]
         fov = float(self.rover.find('.//horizontal_fov').text)

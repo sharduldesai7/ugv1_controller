@@ -14,6 +14,8 @@ setup(
         ('share/' + package_name, ['package.xml']),
         (os.path.join('share', package_name, 'launch'), glob('launch/*.launch.py')),
         (os.path.join('share', package_name, 'config', 'sim'), glob('config/sim/*')),
+        (os.path.join('share', package_name, 'config', 'vio'), glob('config/vio/*.yaml')),
+        (os.path.join('share', package_name, 'config', 'vio', 'sim'), glob('config/vio/sim/*')),
         (os.path.join('share', package_name, 'sim', 'worlds'), glob('sim/worlds/*')),
     ] + [
         # Simulation models, one install directory per model (and its textures)
@@ -37,10 +39,10 @@ setup(
             "process_node = ugv1_controller.process_node:main",
             "web_node = ugv1_controller.web_node:main",
             "imu_node = ugv1_controller.imu_node:main",
-            "odom_tf_node = ugv1_controller.odom_tf_node:main",
+            "odom_tf_node = ugv1_controller.vio.odom_tf_node:main",
             "sim_camera_relay = ugv1_controller.sim_camera_relay:main",
             "sim_route_node = ugv1_controller.sim_route_node:main",
-            "vio_eval = ugv1_controller.vio_eval:main"
+            "vio_eval = ugv1_controller.vio.vio_eval:main"
         ],
     },
 )

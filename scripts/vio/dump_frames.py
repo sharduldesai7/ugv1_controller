@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Contact sheet of camera frames from a recorded sim bag, with a corner count per frame.
 
-Usage: python3 scripts/sim/dump_frames.py BAG START_S END_S [OUT.png] [COUNT=12]
+Usage: python3 scripts/vio/dump_frames.py BAG START_S END_S [OUT.png] [COUNT=12]
 
 START_S and END_S are seconds since the first camera frame in the bag. Frames are picked evenly
 in that window. Each tile is labelled with its time and the number of FAST corners (threshold 20,

@@ -17,12 +17,14 @@ ROS2 Jazzy package for UGV1 — a payload-agnostic autonomous ground vehicle tar
 - `motor_control_node` — subscribes to `/cmd_vel`, sends UART packets to Arduino
 - `process_node` — OpenCV processing of `/video_raw`, publishes `/video_processed`. Not used by the web interface or started by `start_ugv1.sh`; pending removal (see `TECH_DEBT.md`)
 - `web_node` — web server on port 8080 and manual-drive source for `/cmd_vel` (see below)
-- `odom_tf_node` — turns OpenVINS `/odomimu` (frames `global` -> `imu`) into the `odom -> base_link` transform and an `/odom` pose topic. base_link is the IMU frame turned 180 deg about z. Started with `--with-openvins` in the `ugv1_odom_tf` session.
+- `odom_tf_node` (in `ugv1_controller/vio/`) — turns OpenVINS `/odomimu` (frames `global` -> `imu`) into the `odom -> base_link` transform and an `/odom` pose topic. base_link is the IMU frame turned 180 deg about z. Started with `--with-openvins` in the `ugv1_odom_tf` session.
 - `lidar.launch.py` — RPLidar A1M8 driver (`/scan`) plus the static transforms `base_link -> imu_link` and `base_link -> laser`. Started by `start_ugv1.sh` in the `ugv1_lidar` tmux session.
 
 Serial devices use stable names from `scripts/99-ugv1-usb.rules` (`/dev/rplidar`, `/dev/ugv_motor`); install the rules on the Pi before running the stack.
 
 ## Simulation
+
+OpenVINS (monocular VIO) is parked and kept separate: see `docs/vio/README.md`.
 
 `sim/` holds a Gazebo Harmonic model of the rover and a textured warehouse, for testing OpenVINS (and later RTAB-Map and Nav2) without the real chassis: record a bag in the simulator, replay it on the Pi at real time, and score the result against ground truth. See `sim/README.md`.
 
@@ -84,7 +86,7 @@ ros2 run ugv1_controller capture_node --ros-args -p publish_raw:=true
 ### OpenVINS
 ```bash
 ros2 run ov_msckf run_subscribe_msckf --ros-args \
-  -p config_path:=/home/ubuntu/ros2_ws/src/ugv1_controller/config/estimator_config.yaml
+  -p config_path:=/home/ubuntu/ros2_ws/src/ugv1_controller/config/vio/estimator_config.yaml
 ```
 
 Hold robot still at startup, then give a brief gentle shake to trigger initialization.
@@ -113,7 +115,7 @@ OpenVINS master branch requires patching for ROS2 Jazzy compatibility:
 
 ## Calibration
 
-Camera-IMU calibration done with Kalibr. Results in `config/kalibr_imucam_chain.yaml`:
+Camera-IMU calibration done with Kalibr. Results in `config/vio/kalibr_imucam_chain.yaml`:
 - Camera: pinhole-radtan, 640x480, 30fps
 - Timeshift: -0.185s
 - Reprojection error: 0.705px

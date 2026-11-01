@@ -1,5 +1,7 @@
 # UGV1 simulation
 
+The OpenVINS parts of this runbook (replay on the Pi, `vio_eval`, `config/vio/`) are parked; see `docs/vio/README.md` for their current locations and results.
+
 A Gazebo Harmonic model of the rover in a textured warehouse, used to test the
 software stack (OpenVINS, later RTAB-Map and Nav2) without the real chassis.
 
@@ -34,15 +36,15 @@ put on it.
 | --- | --- | --- |
 | Frames | `base_link` at the IMU; IMU frame = base_link turned 180 deg about z; `laser` as in `lidar.launch.py` | real rover |
 | Camera | 640x480, 15 fps, mono8, ideal pinhole, f = 396.6 px, no distortion, no time offset, small pixel noise | focal length from your calibration |
-| Camera pose | at the real `T_imu_cam` (about 7.9 deg nose-up, 6.7 cm forward of the IMU) | `config/kalibr_imucam_chain.yaml` |
-| IMU | 100 Hz, white noise 1.134e-4 / 7.5e-4 per sqrt(Hz), bias random walk 3.0e-5 / 8.0e-4 | `config/kalibr_imu_chain.yaml` |
+| Camera pose | at the real `T_imu_cam` (about 7.9 deg nose-up, 6.7 cm forward of the IMU) | `config/vio/kalibr_imucam_chain.yaml` |
+| IMU | 100 Hz, white noise 1.134e-4 / 7.5e-4 per sqrt(Hz), bias random walk 3.0e-5 / 8.0e-4 | `config/vio/kalibr_imu_chain.yaml` |
 | LiDAR | 720 samples, 7.4 Hz, 0.15 to 12 m, 5 mm noise | A1M8 |
 | Drive | two-wheel differential drive with casters, 65 mm wheels, 0.22 m track, limited acceleration | assumed; the real chassis is being replaced |
 | World | 14 x 10 m room, three racks of boxes with 1.8 m aisles, textured floor, walls and boxes | generated |
 
 Not matched on purpose: the real principal point (the real cy = 269 is 29 px
 off centre) and lens distortion. The simulated camera is an ideal pinhole, and
-`config/sim/kalibr_imucam_chain.yaml` says so. Real distortion can be added
+`config/vio/sim/kalibr_imucam_chain.yaml` says so. Real distortion can be added
 later once the base case works.
 
 ## One-time setup on the simulation machine
@@ -113,7 +115,7 @@ Copy the bag to the Pi and replay:
 ```bash
 scp -r ~/sim_bags/aisles1 ubuntu@<pi-ip>:~/sim_bags/          # from the VM or Mac
 # on the Pi (after git pull and colcon build; stop the sensor nodes first):
-~/ros2_ws/src/ugv1_controller/scripts/sim/replay_on_pi.sh ~/sim_bags/aisles1 run1
+~/ros2_ws/src/ugv1_controller/scripts/vio/replay_on_pi.sh ~/sim_bags/aisles1 run1
 ros2 run ugv1_controller vio_eval --truth ~/sim_bags/aisles1 --est ~/sim_runs/run1/openvins_out
 ```
 

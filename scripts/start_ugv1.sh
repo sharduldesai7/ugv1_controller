@@ -98,7 +98,7 @@ if [ "$WITH_OPENVINS" = true ]; then
   echo "Starting OpenVINS... Hold robot still for initialization."
   tmux new-session -d -s ugv1_openvins \
     "${DISCOVERY_ENV} source ~/ros2_ws/install/setup.bash; ros2 run ov_msckf run_subscribe_msckf --ros-args \
-      -p config_path:=/home/ubuntu/ros2_ws/src/ugv1_controller/config/estimator_config.yaml"
+      -p config_path:=/home/ubuntu/ros2_ws/src/ugv1_controller/config/vio/estimator_config.yaml"
   echo "OpenVINS started."
 
   # odom -> base_link from the OpenVINS odometry

@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Mean and spread of the IMU while the rover is at rest, from a recorded sim bag.
 
-Usage: python3 scripts/sim/imu_rest_stats.py ~/sim_bags/aisles1 [seconds=15]
+Usage: python3 scripts/vio/imu_rest_stats.py ~/sim_bags/aisles1 [seconds=15]
 
 Looks at the first and the last SECONDS of /imu/data_raw (the rover is stationary then).
 At rest the IMU frame should read accel = (0, 0, 9.81) and gyro = (0, 0, 0). A mean that
@@ -10,7 +10,7 @@ the noise settings (accel about 7.5e-3, gyro about 1.1e-3 per sample at 100 Hz).
 """
 import sys
 import numpy as np
-from ugv1_controller.vio_eval import read_bag
+from ugv1_controller.eval_common import read_bag
 
 
 def stats(a, g, label):

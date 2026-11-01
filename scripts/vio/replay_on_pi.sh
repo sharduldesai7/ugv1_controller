@@ -1,4 +1,5 @@
 #!/bin/bash
+# OpenVINS only (parked; see docs/vio/README.md).
 # Replay a simulation bag into OpenVINS on the Raspberry Pi at real-time speed,
 # and record what OpenVINS produces plus Pi CPU use.
 #
@@ -19,7 +20,7 @@ BAG="$1"
 [ -d "$BAG" ] || { echo "Usage: $0 <sim_bag_dir> [out_name]"; exit 1; }
 NAME="${2:-run_$(date +%Y%m%d_%H%M)}"
 OUT="$HOME/sim_runs/$NAME"
-CFG="$HOME/ros2_ws/src/ugv1_controller/config/sim/estimator_config.yaml"
+CFG="$HOME/ros2_ws/src/ugv1_controller/config/vio/sim/estimator_config.yaml"
 [ -f "$CFG" ] || { echo "Missing $CFG (git pull and colcon build first)"; exit 1; }
 mkdir -p "$OUT"
 
