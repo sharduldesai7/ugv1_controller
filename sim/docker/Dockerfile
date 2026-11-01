@@ -16,6 +16,11 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 # vncpasswd is in its own package; kept as a separate layer so the big install above stays cached
 RUN apt-get update && apt-get install -y --no-install-recommends tigervnc-tools && rm -rf /var/lib/apt/lists/*
 
+# Standard localisation stack (docs/loc/README.md); own layer so the layers above stay cached
+RUN apt-get update && apt-get install -y --no-install-recommends \
+      ros-jazzy-slam-toolbox ros-jazzy-robot-localization \
+    && rm -rf /var/lib/apt/lists/*
+
 ENV LIBGL_ALWAYS_SOFTWARE=1 GALLIUM_DRIVER=llvmpipe DISPLAY=:1
 RUN mkdir -p /root/.vnc && echo "password" | vncpasswd -f > /root/.vnc/passwd && chmod 600 /root/.vnc/passwd
 

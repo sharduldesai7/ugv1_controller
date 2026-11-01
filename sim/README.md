@@ -53,7 +53,7 @@ Ubuntu 24.04 with ROS 2 Jazzy (you already have this in the UTM VM):
 
 ```bash
 sudo apt update
-sudo apt install ros-jazzy-ros-gz-sim ros-jazzy-ros-gz-bridge ros-jazzy-tf2-ros python3-opencv python3-flask xvfb
+sudo apt install ros-jazzy-ros-gz-sim ros-jazzy-ros-gz-bridge ros-jazzy-tf2-ros ros-jazzy-slam-toolbox ros-jazzy-robot-localization python3-opencv python3-flask xvfb
 cd ~/ros2_ws/src/ugv1_controller && git pull
 cd ~/ros2_ws && colcon build --packages-select ugv1_controller --symlink-install && source install/setup.bash
 ```

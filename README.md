@@ -26,6 +26,8 @@ Serial devices use stable names from `scripts/99-ugv1-usb.rules` (`/dev/rplidar`
 
 OpenVINS (monocular VIO) is parked and kept separate: see `docs/vio/README.md`.
 
+Standard localisation (wheel odometry + gyro EKF, slam_toolbox on the LiDAR): `docs/loc/README.md`, code in `ugv1_controller/loc/`, launch with `loc.launch.py`.
+
 `sim/` holds a Gazebo Harmonic model of the rover and a textured warehouse, for testing OpenVINS (and later RTAB-Map and Nav2) without the real chassis: record a bag in the simulator, replay it on the Pi at real time, and score the result against ground truth. See `sim/README.md`.
 
 ## LiDAR health check

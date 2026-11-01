@@ -16,6 +16,7 @@ setup(
         (os.path.join('share', package_name, 'config', 'sim'), glob('config/sim/*')),
         (os.path.join('share', package_name, 'config', 'vio'), glob('config/vio/*.yaml')),
         (os.path.join('share', package_name, 'config', 'vio', 'sim'), glob('config/vio/sim/*')),
+        (os.path.join('share', package_name, 'config', 'loc'), glob('config/loc/*.yaml')),
         (os.path.join('share', package_name, 'sim', 'worlds'), glob('sim/worlds/*')),
     ] + [
         # Simulation models, one install directory per model (and its textures)
@@ -42,7 +43,10 @@ setup(
             "odom_tf_node = ugv1_controller.vio.odom_tf_node:main",
             "sim_camera_relay = ugv1_controller.sim_camera_relay:main",
             "sim_route_node = ugv1_controller.sim_route_node:main",
-            "vio_eval = ugv1_controller.vio.vio_eval:main"
+            "vio_eval = ugv1_controller.vio.vio_eval:main",
+            "sensor_conditioner_node = ugv1_controller.loc.sensor_conditioner_node:main",
+            "map_pose_node = ugv1_controller.loc.map_pose_node:main",
+            "loc_eval = ugv1_controller.loc.loc_eval:main"
         ],
     },
 )
